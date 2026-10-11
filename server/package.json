@@ -4,10 +4,10 @@
   "main": "dist/index.js",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
-    "build": "tsc -p .",
+    "build": "node node_modules/typescript/bin/tsc -p .",
     "start": "node dist/index.js",
-    "prisma:generate": "prisma generate",
-    "prisma:migrate": "prisma migrate dev",
+    "prisma:generate": "node node_modules/prisma/build/index.js generate",
+    "prisma:migrate": "node node_modules/prisma/build/index.js migrate dev",
     "format-db": "ts-node prisma/format_db.ts"
   },
   "dependencies": {
