@@ -7,6 +7,7 @@
     "prisma:generate": "npm run prisma:generate --prefix server",
     "prisma:migrate": "npm run prisma:migrate --prefix server",
     "format-db": "npm run format-db --prefix server",
+    "create-owner": "npm run create-owner --prefix server",
     "build:client": "npm run build --prefix client",
     "build:server": "npm run build --prefix server",
     "build": "npm run install:all && npm run prisma:generate && npm run build:client && npm run build:server",

@@ -3,20 +3,12 @@ import { prisma } from "../../prisma/client";
 import { requireAuth } from "../../middleware/auth";
 import { loginUser, registerUser } from "./auth.service";
 export const authRouter = Router();
-authRouter.post("/register", async (req, res, next) => {
-  try {
-    const { email, password, name, role } = req.body;
-    if (!email || !password || !role) {
-      return res.status(400).json({ error: { message: "email, password and role are required" } });
+authRouter.post("/register", async (_req, res) => {
+  return res.status(403).json({
+    error: {
+      message: "Public registration is disabled. Owner and tenant accounts are provisioned exclusively by the system administrator."
     }
-    if (role !== "OWNER" && role !== "TENANT") {
-      return res.status(400).json({ error: { message: "role must be OWNER or TENANT" } });
-    }
-    const result = await registerUser({ email, password, name, role });
-    res.status(201).json(result);
-  } catch (err) {
-    next(err);
-  }
+  });
 });
 authRouter.post("/login", async (req, res, next) => {
   try {

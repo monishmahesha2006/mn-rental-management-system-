@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate, Link, useLocation } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../shared/AuthContext";
 import { motion, AnimatePresence } from "framer-motion";
 import { Lock, Mail, ArrowRight, Home, ShieldCheck, User, Sparkles } from "lucide-react";
@@ -129,19 +129,19 @@ export function LoginPage() {
             </button>
           </form>
           <div className="mt-9 pt-7" style={{borderTop: '1px solid var(--linen)'}}>
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-5">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
               <div className="text-center sm:text-left">
-                <p className="text-xs font-semibold uppercase tracking-[0.12em] mb-1.5" style={{color: 'var(--slate-light)'}}>New Resident?</p>
-                <Link to="/register" className="text-sm font-semibold transition-colors" style={{color: 'var(--indigo-mid)'}} onMouseEnter={e => (e.currentTarget as HTMLElement).style.color = 'var(--indigo-light)'} onMouseLeave={e => (e.currentTarget as HTMLElement).style.color = 'var(--indigo-mid)'}>
-                  Create Account →
-                </Link>
+                <p className="text-xs font-semibold uppercase tracking-[0.14em] mb-1" style={{color: 'var(--slate)'}}>Authorized Access Only</p>
+                <p className="text-xs font-light tracking-wide" style={{color: 'var(--slate-light)'}}>
+                  Accounts are provisioned exclusively by management
+                </p>
               </div>
-              <div className="flex gap-3">
-                <div className="p-2.5 rounded-xl cursor-help transition-all" title="Secure Access" style={{background: 'var(--indigo-pale)', border: '1px solid rgba(45,43,127,0.12)', color: 'var(--indigo-mid)'}}>
-                  <ShieldCheck size={16} strokeWidth={1.6} />
+              <div className="flex gap-2.5">
+                <div className="p-2.5 rounded-xl transition-all" title="Secure Encrypted Authentication" style={{background: 'var(--indigo-pale)', border: '1px solid rgba(45,43,127,0.12)', color: 'var(--indigo-mid)'}}>
+                  <ShieldCheck size={16} strokeWidth={1.8} />
                 </div>
-                <div className="p-2.5 rounded-xl cursor-help transition-all" title="Verified Users" style={{background: 'var(--indigo-pale)', border: '1px solid rgba(45,43,127,0.12)', color: 'var(--indigo-mid)'}}>
-                  <User size={16} strokeWidth={1.6} />
+                <div className="p-2.5 rounded-xl transition-all" title="Verified User Profiles" style={{background: 'var(--indigo-pale)', border: '1px solid rgba(45,43,127,0.12)', color: 'var(--indigo-mid)'}}>
+                  <User size={16} strokeWidth={1.8} />
                 </div>
               </div>
             </div>

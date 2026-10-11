@@ -1,6 +1,5 @@
-import { useRoutes } from "react-router-dom";
+import { useRoutes, Navigate } from "react-router-dom";
 import { LoginPage } from "./screens/LoginPage";
-import { RegisterPage } from "./screens/RegisterPage";
 import { OwnerDashboard } from "./screens/owner/OwnerDashboard";
 import { OwnerTenants } from "./screens/owner/OwnerTenants";
 import { OwnerTenantProfile } from "./screens/owner/OwnerTenantProfile";
@@ -28,7 +27,7 @@ import { TenantServiceBooking } from "./screens/tenant/TenantServiceBooking";
 export function AppRoutes() {
   const element = useRoutes([
     { path: "/login", element: <LoginPage /> },
-    { path: "/register", element: <RegisterPage /> },
+    { path: "/register", element: <Navigate to="/login" replace /> },
     {
       path: "/owner",
       element: (

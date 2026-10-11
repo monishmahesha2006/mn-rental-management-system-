@@ -55,8 +55,16 @@ Access the application at `http://localhost:4000`.
 
 ---
 
-## 🗄️ Database Management
+## 🗄️ Database & Account Management
 
+- **Provision / Update Owner Account (Developer Only)**:
+  ```bash
+  # Interactive mode:
+  npm run create-owner
+
+  # Or with arguments:
+  npm run create-owner -- owner@email.com password123 "Owner Name"
+  ```
 - **Format & Clean Mock Data**:
   ```bash
   npm run format-db
