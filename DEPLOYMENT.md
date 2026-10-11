@@ -26,25 +26,25 @@ This platform has been configured for **Unified Production Deployment**, meaning
 ## ☁️ Cloud Deployment Options
 
 ### Option 1: Render.com (Recommended Free/Easy Option)
-1. Push your repository to **GitHub** or **GitLab**.
-2. Create a new **Web Service** on [Render Dashboard](https://dashboard.render.com).
-3. Connect your repository and configure:
-   - **Environment**: `Node`
-   - **Build Command**:
-     ```bash
-     npm run install:all && npm run build
-     ```
-   - **Start Command**:
-     ```bash
-     npm start
-     ```
-4. Under **Environment Variables**, add:
+
+**Automatic Blueprint Deployment (1-Click)**:
+Render will automatically detect `render.yaml` in this repository!
+1. In [Render Dashboard](https://dashboard.render.com), click **New +** -> **Blueprint**.
+2. Connect `monishmahesha2006/mn-rental-management-system-`.
+3. Render reads `render.yaml` and deploys automatically!
+
+**Manual Web Service Deployment**:
+1. Click **New +** -> **Web Service**.
+2. Connect your repository and configure:
+   - **Runtime**: `Node`
+   - **Build Command**: `npm run render-build`
+   - **Start Command**: `npm start`
+   - **Health Check Path**: `/api/health`
+3. Under **Environment Variables**:
    - `NODE_ENV`: `production`
-   - `PORT`: `10000` (or leave default for Render)
-   - `JWT_SECRET`: *(A secure random string, e.g. `openssl rand -hex 32`)*
-   - `DATABASE_URL`: `file:./dev.db` *(or your PostgreSQL URL if using hosted Postgres)*
-   - `RAZORPAY_KEY_ID`: *(Optional / Coming Soon)*
-   - `RAZORPAY_KEY_SECRET`: *(Optional / Coming Soon)*
+   - `DATABASE_URL`: `file:./dev.db`
+   - `JWT_SECRET`: *(Click 'Generate' or enter a secure random string)*
+   - `PORT`: `10000` (Render defaults to 10000 or dynamically assigns)
 
 ---
 

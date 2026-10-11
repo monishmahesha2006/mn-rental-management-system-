@@ -3,16 +3,20 @@
   "version": "1.0.0",
   "description": "Premium Bangalore Rental & Property Management Platform",
   "scripts": {
-    "install:all": "npm install --prefix server && npm install --prefix client",
-    "build:client": "npm run build --prefix client",
-    "build:server": "npm run build --prefix server",
-    "build": "npm run build:client && npm run build:server",
+    "install:all": "npm install --include=dev --prefix client && npm install --include=dev --prefix server",
     "prisma:generate": "npm run prisma:generate --prefix server",
     "prisma:migrate": "npm run prisma:migrate --prefix server",
     "format-db": "npm run format-db --prefix server",
+    "build:client": "npm run build --prefix client",
+    "build:server": "npm run build --prefix server",
+    "build": "npm run install:all && npm run prisma:generate && npm run build:client && npm run build:server",
+    "render-build": "npm run build",
     "start": "node server/dist/index.js",
     "dev:server": "npm run dev --prefix server",
     "dev:client": "npm run dev --prefix client"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   },
   "keywords": [
     "rental",
@@ -21,5 +25,5 @@
     "real-estate"
   ],
   "author": "",
-  "license": "ISC"
+  "license": "MIT"
 }
