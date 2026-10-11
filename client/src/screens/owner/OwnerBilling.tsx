@@ -16,35 +16,28 @@ import {
   Square
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-
 interface ResultInvoice {
   invoiceId: string;
   unitName: string;
   residents: number;
   amount: number;
 }
-
 interface TankerResult {
   totalCost: number;
   totalResidents: number;
   perResident: number;
   invoices: ResultInvoice[];
 }
-
 export function OwnerBilling() {
   const [selectedPropertyId, setSelectedPropertyId] = useState("");
   const [selectedUnitIds, setSelectedUnitIds] = useState<string[]>([]);
   const [totalCost, setTotalCost] = useState<number>(0);
-
-  // Fetch properties
   const { data: propertiesData } = useMutation({
     mutationFn: async () => {
       const res = await axios.get("/api/owner/properties");
       return res.data;
     }
   }) as any;
-
-  // Use query instead of mutation for fetching properties on load
   const { data: propsData } = useQuery({
     queryKey: ["owner-properties-billing"],
     queryFn: async () => {
@@ -52,14 +45,12 @@ export function OwnerBilling() {
       return res.data;
     }
   });
-
   const mutation = useMutation({
     mutationFn: async (body: { propertyId: string; totalCost: number; unitIds: string[] }) => {
       const res = await axios.post("/api/owner/billing/tanker-split", body);
       return res.data as TankerResult;
     }
   });
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedPropertyId || !totalCost) return;
@@ -69,11 +60,9 @@ export function OwnerBilling() {
       unitIds: selectedUnitIds.length > 0 ? selectedUnitIds : []
     });
   };
-
   const properties = propsData?.properties || [];
   const selectedProperty = properties.find((p: any) => p.id === selectedPropertyId);
   const availableUnits = selectedProperty?.units?.filter((u: any) => u.status === "OCCUPIED" || u.tenancies?.length > 0) || [];
-
   const toggleUnit = (unitId: string) => {
     if (selectedUnitIds.includes(unitId)) {
       setSelectedUnitIds(selectedUnitIds.filter(id => id !== unitId));
@@ -81,7 +70,6 @@ export function OwnerBilling() {
       setSelectedUnitIds([...selectedUnitIds, unitId]);
     }
   };
-
   const toggleAllUnits = () => {
     if (selectedUnitIds.length === availableUnits.length) {
       setSelectedUnitIds([]);
@@ -89,9 +77,7 @@ export function OwnerBilling() {
       setSelectedUnitIds(availableUnits.map((u: any) => u.id));
     }
   };
-
   const result = mutation.data;
-
   return (
     <div className="space-y-10 animate-fade-in-up pb-16">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
@@ -109,7 +95,6 @@ export function OwnerBilling() {
           </div>
         </div>
       </div>
-
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 items-start">
         <motion.div
           initial={{ opacity: 0, x: -20 }}
@@ -122,7 +107,6 @@ export function OwnerBilling() {
             </div>
             <h2 className="serif-heading text-2xl text-pearl-50 tracking-tight">Split Parameters</h2>
           </div>
-
           <form onSubmit={handleSubmit} className="space-y-8">
             <div className="space-y-3">
               <label className="text-xs font-medium text-gold-400 uppercase tracking-[0.15em] px-1">Selected Property</label>
@@ -133,7 +117,7 @@ export function OwnerBilling() {
                   value={selectedPropertyId}
                   onChange={(e) => {
                     setSelectedPropertyId(e.target.value);
-                    setSelectedUnitIds([]); // Reset units on property change
+                    setSelectedUnitIds([]); 
                   }}
                   required
                 >
@@ -147,7 +131,6 @@ export function OwnerBilling() {
                 <ChevronDown className="absolute right-5 top-1/2 -translate-y-1/2 text-gold-700 pointer-events-none" size={16} />
               </div>
             </div>
-
             {selectedPropertyId && (
               <div className="space-y-3 animate-fade-in-up">
                 <div className="flex items-center justify-between px-1">
@@ -160,7 +143,6 @@ export function OwnerBilling() {
                     {selectedUnitIds.length === availableUnits.length ? "Deselect All" : "Select All"}
                   </button>
                 </div>
-
                 {availableUnits.length === 0 ? (
                   <div className="p-4 rounded-xl border border-gold-500/10 bg-navy-900/40 text-center">
                     <p className="text-xs text-gold-700 italic">No occupied units found in this property.</p>
@@ -197,7 +179,6 @@ export function OwnerBilling() {
                 </div>
               </div>
             )}
-
             <div className="space-y-3">
               <label className="text-xs font-medium text-gold-400 uppercase tracking-[0.15em] px-1">Total Tanker Cost (₹)</label>
               <div className="relative group/input">
@@ -213,7 +194,6 @@ export function OwnerBilling() {
                 />
               </div>
             </div>
-
             <button
               type="submit"
               className="luxury-button w-full py-5 text-sm"
@@ -221,7 +201,6 @@ export function OwnerBilling() {
             >
               {mutation.isPending ? "Calculating Distribution..." : "Execute Tanker Split"}
             </button>
-
             {mutation.error && (
               <p className="text-sm font-medium text-red-400 italic text-center">
                 {(mutation.error as any)?.response?.data?.error?.message || "Failed to execute split engine"}
@@ -229,7 +208,6 @@ export function OwnerBilling() {
             )}
           </form>
         </motion.div>
-
         <motion.div
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
@@ -255,7 +233,6 @@ export function OwnerBilling() {
                     <div className="text-2xl font-bold text-gold-400 tracking-tight">₹{result.perResident.toFixed(2)}</div>
                   </div>
                 </div>
-
                 <div className="overflow-x-auto custom-scrollbar">
                   <table className="min-w-full">
                     <thead className="bg-navy-900/40 text-[10px] font-bold text-gold-700 uppercase tracking-[0.15em]">
@@ -320,4 +297,4 @@ export function OwnerBilling() {
       </div>
     </div>
   );
-}
+}

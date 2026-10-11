@@ -19,14 +19,12 @@ import { OwnerRentAnalytics } from "./screens/owner/OwnerRentAnalytics";
 import { OwnerNoticeBoard } from "./screens/owner/OwnerNoticeBoard";
 import { SidebarLayout } from "./shared/SidebarLayout";
 import { ProtectedRoute } from "./shared/ProtectedRoute";
-
 import { OwnerExpenses } from "./screens/owner/OwnerExpenses";
 import { OwnerVendors } from "./screens/owner/OwnerVendors";
 import { OwnerInventory } from "./screens/owner/OwnerInventory";
 import { OwnerAutomation } from "./screens/owner/OwnerAutomation";
 import { OwnerCashApprovals } from "./screens/owner/OwnerCashApprovals";
 import { TenantServiceBooking } from "./screens/tenant/TenantServiceBooking";
-
 export function AppRoutes() {
   const element = useRoutes([
     { path: "/login", element: <LoginPage /> },
@@ -77,7 +75,5 @@ export function AppRoutes() {
     { path: "/", element: <LoginPage /> },
     { path: "*", element: <LoginPage /> }
   ]);
-
   return element;
-}
-
+}

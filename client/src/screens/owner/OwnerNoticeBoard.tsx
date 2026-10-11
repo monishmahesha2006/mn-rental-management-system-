@@ -16,7 +16,6 @@ import {
 } from "lucide-react";
 import { format } from "date-fns";
 import { motion, AnimatePresence } from "framer-motion";
-
 interface Notice {
     id: string;
     title: string;
@@ -24,12 +23,10 @@ interface Notice {
     priority: string;
     createdAt: string;
 }
-
 export function OwnerNoticeBoard() {
     const queryClient = useQueryClient();
     const [isAdding, setIsAdding] = useState(false);
     const [newNotice, setNewNotice] = useState({ title: "", content: "", priority: "NORMAL" });
-
     const { data, isLoading } = useQuery<{ notices: Notice[] }>({
         queryKey: ["owner-notices"],
         queryFn: async () => {
@@ -37,7 +34,6 @@ export function OwnerNoticeBoard() {
             return res.data;
         }
     });
-
     const createMutation = useMutation({
         mutationFn: async (notice: typeof newNotice) => {
             const res = await axios.post("/api/owner/notices", notice);
@@ -49,7 +45,6 @@ export function OwnerNoticeBoard() {
             setIsAdding(false);
         }
     });
-
     const deleteMutation = useMutation({
         mutationFn: async (id: string) => {
             await axios.delete(`/api/owner/notices/${id}`);
@@ -58,13 +53,11 @@ export function OwnerNoticeBoard() {
             queryClient.invalidateQueries({ queryKey: ["owner-notices"] });
         }
     });
-
     const handleCreate = (e: React.FormEvent) => {
         e.preventDefault();
         if (!newNotice.title || !newNotice.content) return;
         createMutation.mutate(newNotice);
     };
-
     const getPriorityStyles = (p: string) => {
         switch (p) {
             case "URGENT": return "border-red-500/30 text-red-400 bg-red-900/20";
@@ -72,7 +65,6 @@ export function OwnerNoticeBoard() {
             default: return "border-gold-700/30 text-gold-700 bg-navy-800/50";
         }
     };
-
     const getPriorityIcon = (p: string) => {
         switch (p) {
             case "URGENT": return <AlertTriangle size={14} />;
@@ -80,9 +72,7 @@ export function OwnerNoticeBoard() {
             default: return <Info size={14} />;
         }
     };
-
     const notices = data?.notices || [];
-
     return (
         <div className="space-y-10 animate-fade-in-up pb-16">
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
@@ -101,7 +91,6 @@ export function OwnerNoticeBoard() {
                     New Announcement
                 </button>
             </div>
-
             <AnimatePresence>
                 {isAdding && (
                     <motion.div
@@ -170,7 +159,6 @@ export function OwnerNoticeBoard() {
                     </motion.div>
                 )}
             </AnimatePresence>
-
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {isLoading ? (
                     <div className="lg:col-span-2 space-y-6">
@@ -222,4 +210,4 @@ export function OwnerNoticeBoard() {
             </div>
         </div>
     );
-}
+}

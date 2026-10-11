@@ -2,18 +2,15 @@ import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import {
     History,
-    Download,
     CheckCircle2,
     ReceiptIndianRupee,
     Building2,
     ArrowRight,
-    Sparkles,
     ShieldCheck,
     Clock
 } from "lucide-react";
 import { format } from "date-fns";
 import { motion } from "framer-motion";
-
 interface PaymentHistoryInvoice {
     id: string;
     dueDate: string;
@@ -35,7 +32,6 @@ interface PaymentHistoryInvoice {
         }
     };
 }
-
 export function TenantPaymentHistory() {
     const { data: history, isLoading } = useQuery<{ invoices: PaymentHistoryInvoice[] }>({
         queryKey: ["tenant-payment-history"],
@@ -44,11 +40,6 @@ export function TenantPaymentHistory() {
             return res.data;
         }
     });
-
-    const handleDownloadReceipt = (invoiceId: string) => {
-        alert(`Generating Premium PDF Receipt for Statement ${invoiceId.toUpperCase()}... Verification successful.`);
-    };
-
     return (
         <div className="space-y-10 animate-fade-in-up pb-16">
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
@@ -66,7 +57,6 @@ export function TenantPaymentHistory() {
                     </div>
                 </div>
             </div>
-
             {isLoading ? (
                 <div className="py-32 text-center">
                     <div className="h-14 w-14 border-2 border-gold-500 border-t-transparent rounded-full animate-spin mx-auto mb-6 luxury-glow" />
@@ -117,7 +107,6 @@ export function TenantPaymentHistory() {
                                         </div>
                                     </div>
                                 </div>
-
                                 <div className="flex flex-col md:flex-row md:items-center gap-6 xl:pl-16">
                                     <div className="flex items-center gap-3 text-sm font-light text-gold-700 italic">
                                         <Building2 size={16} className="text-gold-500" />
@@ -130,21 +119,10 @@ export function TenantPaymentHistory() {
                                     </div>
                                 </div>
                             </div>
-
-                            <div className="xl:border-l border-gold-500/10 xl:pl-8 flex xl:block">
-                                <button
-                                    onClick={() => handleDownloadReceipt(invoice.id)}
-                                    className="luxury-button-outline w-full xl:w-auto py-4 px-8 text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-3 border-gold-500/20 group/btn"
-                                >
-                                    <Download size={16} className="group-hover/btn:translate-y-0.5 transition-transform" />
-                                    Download Registry Seal
-                                    <Sparkles size={14} />
-                                </button>
-                            </div>
                         </motion.div>
                     ))}
                 </div>
             )}
         </div>
     );
-}
+}

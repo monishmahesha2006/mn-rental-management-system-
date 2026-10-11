@@ -11,7 +11,6 @@ import {
 } from "lucide-react";
 import { format } from "date-fns";
 import { motion } from "framer-motion";
-
 interface Notice {
     id: string;
     title: string;
@@ -19,7 +18,6 @@ interface Notice {
     priority: "NORMAL" | "IMPORTANT" | "URGENT";
     createdAt: string;
 }
-
 export function TenantNoticeBoard() {
     const { data, isLoading } = useQuery<{ notices: Notice[] }>({
         queryKey: ["tenant-notices"],
@@ -28,7 +26,6 @@ export function TenantNoticeBoard() {
             return res.data;
         }
     });
-
     const getPriorityStyles = (priority: string) => {
         switch (priority) {
             case "URGENT": return "border-red-500/30 text-red-400 bg-red-900/20";
@@ -36,7 +33,6 @@ export function TenantNoticeBoard() {
             default: return "border-gold-700/30 text-gold-700 bg-navy-800/50";
         }
     };
-
     const getPriorityIcon = (priority: string) => {
         switch (priority) {
             case "URGENT": return <Flame size={14} />;
@@ -44,9 +40,7 @@ export function TenantNoticeBoard() {
             default: return <Info size={14} />;
         }
     };
-
     const notices = data?.notices || [];
-
     return (
         <div className="space-y-10 animate-fade-in-up pb-16">
             <div className="relative overflow-hidden rounded-[2.5rem] bg-navy-900/40 p-10 md:p-14 border border-gold-500/10 luxury-shadow">
@@ -61,7 +55,6 @@ export function TenantNoticeBoard() {
                     <Megaphone size={200} strokeWidth={0.5} />
                 </div>
             </div>
-
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {isLoading ? (
                     Array.from({ length: 3 }).map((_, i) => (
@@ -107,15 +100,13 @@ export function TenantNoticeBoard() {
                                     {notice.content}
                                 </p>
                             </div>
-
                             <div className="mt-8 pt-6 border-t border-gold-500/10">
                                 <button className="text-[10px] font-bold text-gold-500 uppercase tracking-[0.25em] flex items-center gap-3 hover:text-gold-400 transition-all group-hover:gap-5">
                                     Read Full Bulletin
                                     <Sparkles size={12} />
                                 </button>
                             </div>
-
-                            {/* Corner Ornament */}
+                            { }
                             <div className="absolute -bottom-1 -right-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                 <div className="w-12 h-12 border-r-2 border-b-2 border-gold-500/20 rounded-br-2xl" />
                             </div>
@@ -125,4 +116,4 @@ export function TenantNoticeBoard() {
             </div>
         </div>
     );
-}
+}

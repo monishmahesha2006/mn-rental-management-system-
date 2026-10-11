@@ -22,9 +22,7 @@ import {
   Legend,
   Filler
 } from "chart.js";
-
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Legend, Filler);
-
 interface SummaryResponse {
   totalMonthlyRevenue: number;
   pendingDues: number;
@@ -32,17 +30,14 @@ interface SummaryResponse {
   totalUnits: number;
   occupiedUnits: number;
 }
-
 interface RevenueResponse {
   quarterly: { label: string; value: number }[];
   annual: { label: string; value: number }[];
 }
-
 interface RevenueBreakdown {
   properties: { name: string; value: number }[];
   units: { name: string; propertyName: string; value: number }[];
 }
-
 export function OwnerDashboard() {
   const { data: summary, isLoading: loadingSummary } = useQuery<SummaryResponse>({
     queryKey: ["owner-dashboard-summary"],
@@ -51,7 +46,6 @@ export function OwnerDashboard() {
       return res.data;
     }
   });
-
   const { data: revenue, isLoading: loadingRevenue } = useQuery<RevenueResponse>({
     queryKey: ["owner-dashboard-revenue"],
     queryFn: async () => {
@@ -59,7 +53,6 @@ export function OwnerDashboard() {
       return res.data;
     }
   });
-
   const { data: breakdown, isLoading: loadingBreakdown } = useQuery<RevenueBreakdown>({
     queryKey: ["owner-dashboard-breakdown"],
     queryFn: async () => {
@@ -67,15 +60,11 @@ export function OwnerDashboard() {
       return res.data;
     }
   });
-
   const loading = loadingSummary || loadingRevenue || loadingBreakdown;
-
   const quarterlyLabels = revenue?.quarterly.map((q) => q.label) ?? [];
   const quarterlyValues = revenue?.quarterly.map((q) => q.value) ?? [];
-
   const annualLabels = revenue?.annual.map((a) => a.label) ?? [];
   const annualValues = revenue?.annual.map((a) => a.value) ?? [];
-
   return (
     <div className="space-y-10 animate-fade-in-up pb-16">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
@@ -97,9 +86,8 @@ export function OwnerDashboard() {
           </div>
         </div>
       </div>
-
       <div className="grid gap-6 md:grid-cols-3">
-        {/* Metric 1 - Revenue */}
+        { }
         <motion.div
           className="glass-card p-8 group"
           initial={{ opacity: 0, y: 20 }}
@@ -121,8 +109,7 @@ export function OwnerDashboard() {
             <span>+12.5% from last month</span>
           </div>
         </motion.div>
-
-        {/* Metric 2 - Occupancy */}
+        { }
         <motion.div
           className="glass-card p-8 group"
           initial={{ opacity: 0, y: 20 }}
@@ -152,8 +139,7 @@ export function OwnerDashboard() {
             </span>
           </div>
         </motion.div>
-
-        {/* Metric 3 - Pending */}
+        { }
         <motion.div
           className="glass-card p-8 group"
           initial={{ opacity: 0, y: 20 }}
@@ -172,8 +158,7 @@ export function OwnerDashboard() {
           <p className="text-xs font-light text-gold-700 tracking-wide">Outstanding Payments</p>
         </motion.div>
       </div>
-
-      {/* Main Charts Area */}
+      { }
       <motion.div
         className="glass-card p-10"
         initial={{ opacity: 0, y: 20 }}
@@ -193,7 +178,6 @@ export function OwnerDashboard() {
             <button className="px-5 py-2.5 text-gold-700 hover:text-gold-400 rounded-lg text-xs font-medium transition-all">Annual</button>
           </div>
         </div>
-
         {loading ? (
           <div className="h-[350px] w-full bg-navy-800/30 rounded-2xl animate-pulse border border-gold-500/5" />
         ) : (
@@ -266,7 +250,6 @@ export function OwnerDashboard() {
                 }}
               />
             </div>
-
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {annualLabels.map((label, idx) => (
                 <div key={label} className="dark-card hover:bg-navy-800/90 transition-all group">
@@ -280,8 +263,6 @@ export function OwnerDashboard() {
           </div>
         )}
       </motion.div>
-
-
       <div className="grid md:grid-cols-2 gap-8">
         <motion.div
           className="glass-card p-10"
@@ -303,7 +284,6 @@ export function OwnerDashboard() {
             {breakdown?.properties.length === 0 && <p className="text-xs text-gold-700">No revenue data available.</p>}
           </div>
         </motion.div>
-
         <motion.div
           className="glass-card p-10"
           initial={{ opacity: 0, y: 20 }}
@@ -326,4 +306,4 @@ export function OwnerDashboard() {
       </div>
     </div >
   );
-}
+}

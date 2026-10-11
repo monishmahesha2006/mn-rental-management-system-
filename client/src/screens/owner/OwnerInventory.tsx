@@ -3,7 +3,6 @@ import axios from "axios";
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Package, CheckCircle2, AlertTriangle, Building2, Plus, Box } from "lucide-react";
-
 interface Asset {
     id: string;
     name: string;
@@ -14,24 +13,20 @@ interface Asset {
     unitId: string;
     unit: { name: string; property: { name: string } };
 }
-
 export function OwnerInventory() {
     const queryClient = useQueryClient();
     const [showForm, setShowForm] = useState(false);
     const [name, setName] = useState("");
     const [category, setCategory] = useState("APPLIANCE");
     const [unitId, setUnitId] = useState("");
-
     const { data: propertiesData } = useQuery<{ properties: any[] }>({
         queryKey: ["owner-properties"],
         queryFn: async () => (await axios.get("/api/owner/properties")).data
     });
-
     const { data: assetsData, isLoading } = useQuery<{ assets: Asset[] }>({
         queryKey: ["owner-assets"],
         queryFn: async () => (await axios.get("/api/owner/assets")).data
     });
-
     const createMutation = useMutation({
         mutationFn: async (vars: any) => await axios.post("/api/owner/assets", vars),
         onSuccess: () => {
@@ -40,14 +35,11 @@ export function OwnerInventory() {
             setName("");
         }
     });
-
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         createMutation.mutate({ name, category, unitId });
     };
-
     const allUnits = propertiesData?.properties.flatMap(p => p.units.map((u: any) => ({ ...u, propertyName: p.name }))) || [];
-
     return (
         <div className="space-y-8 animate-fade-in-up">
             <div className="flex justify-between items-end">
@@ -63,7 +55,6 @@ export function OwnerInventory() {
                     Catalog Asset
                 </button>
             </div>
-
             {showForm && (
                 <motion.div
                     initial={{ opacity: 0, scale: 0.98 }}
@@ -109,7 +100,6 @@ export function OwnerInventory() {
                     </form>
                 </motion.div>
             )}
-
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {assetsData?.assets.map((asset) => (
                     <div key={asset.id} className="glass-card p-6 border-gold-500/10 hover:bg-gold-500/5 transition-all">
@@ -121,7 +111,6 @@ export function OwnerInventory() {
                         </div>
                         <h4 className="text-pearl-50 font-medium mb-1 tracking-tight">{asset.name}</h4>
                         <p className="text-[10px] text-gold-700 uppercase tracking-widest mb-4">{asset.category}</p>
-
                         <div className="flex items-center gap-2 text-[11px] text-gold-400 font-medium bg-navy-800/40 p-3 rounded-lg">
                             <Building2 size={12} />
                             {asset.unit.property.name} • {asset.unit.name}
@@ -131,4 +120,4 @@ export function OwnerInventory() {
             </div>
         </div>
     );
-}
+}

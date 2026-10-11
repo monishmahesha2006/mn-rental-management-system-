@@ -4,15 +4,11 @@ import { requireAuth } from "../../middleware/auth";
 import { requireRole } from "../../middleware/roles";
 import { prisma } from "../../prisma/client";
 import { NotificationService } from "../../services/NotificationService";
-
 export const ownerRouter = Router();
-
 ownerRouter.use(requireAuth, requireRole(["OWNER"]));
-
 ownerRouter.get("/dashboard/summary", async (req, res, next) => {
   try {
     const ownerId = req.user!.id;
-
     const [unitCounts, invoices] = await Promise.all([
       prisma.unit.groupBy({
         by: ["status"],
@@ -40,18 +36,14 @@ ownerRouter.get("/dashboard/summary", async (req, res, next) => {
         }
       })
     ]);
-
     const totalUnits = unitCounts.reduce((sum, u) => sum + u._count._all, 0);
     const occupiedCount =
       unitCounts.find((u) => u.status === "OCCUPIED" || u.status === "NOTICE_PERIOD")?._count._all || 0;
-
     const now = new Date();
     const currentMonth = now.getMonth();
     const currentYear = now.getFullYear();
-
     let totalMonthlyRevenue = 0;
     let pendingDues = 0;
-
     for (const inv of invoices) {
       const due = inv.dueDate;
       if (due.getFullYear() === currentYear && due.getMonth() === currentMonth) {
@@ -61,9 +53,7 @@ ownerRouter.get("/dashboard/summary", async (req, res, next) => {
         pendingDues += inv.totalAmount;
       }
     }
-
     const occupancyRate = totalUnits === 0 ? 0 : Math.round((occupiedCount / totalUnits) * 100);
-
     res.json({
       totalMonthlyRevenue,
       pendingDues,
@@ -75,7 +65,6 @@ ownerRouter.get("/dashboard/summary", async (req, res, next) => {
     next(err);
   }
 });
-
 ownerRouter.get("/dashboard/revenue", async (req, res, next) => {
   try {
     const ownerId = req.user!.id;
@@ -95,41 +84,32 @@ ownerRouter.get("/dashboard/revenue", async (req, res, next) => {
       },
       orderBy: { dueDate: "asc" }
     });
-
     const now = new Date();
     const currentYear = now.getFullYear();
     const lastYear = currentYear - 1;
-
     const quarterly: Record<string, number> = {};
     const annual: Record<string, number> = {};
-
     const ensureQuarter = (label: string) => {
       if (!quarterly[label]) quarterly[label] = 0;
     };
-
     for (const inv of invoices) {
       const year = inv.dueDate.getFullYear();
-      const month = inv.dueDate.getMonth(); // 0-11
+      const month = inv.dueDate.getMonth(); 
       const q = Math.floor(month / 3) + 1;
       const qLabel = `Q${q} ${year}`;
-
       ensureQuarter(qLabel);
       quarterly[qLabel] += inv.totalAmount;
-
       const aKey = String(year);
       if (!annual[aKey]) annual[aKey] = 0;
       annual[aKey] += inv.totalAmount;
     }
-
     const quarterlySeries = Object.entries(quarterly)
       .sort(([a], [b]) => (a > b ? 1 : -1))
       .map(([label, value]) => ({ label, value }));
-
     const annualSeries = [
       { label: String(lastYear), value: annual[String(lastYear)] || 0 },
       { label: String(currentYear), value: annual[String(currentYear)] || 0 }
     ];
-
     res.json({
       quarterly: quarterlySeries,
       annual: annualSeries
@@ -138,11 +118,9 @@ ownerRouter.get("/dashboard/revenue", async (req, res, next) => {
     next(err);
   }
 });
-
 ownerRouter.get("/dashboard/revenue-breakdown", async (req, res, next) => {
   try {
     const ownerId = req.user!.id;
-
     const invoices = await prisma.invoice.findMany({
       where: {
         tenancy: {
@@ -152,7 +130,7 @@ ownerRouter.get("/dashboard/revenue-breakdown", async (req, res, next) => {
             }
           }
         },
-        status: "PAID" // Only count paid invoices for revenue
+        status: "PAID" 
       },
       include: {
         tenancy: {
@@ -166,32 +144,24 @@ ownerRouter.get("/dashboard/revenue-breakdown", async (req, res, next) => {
         }
       }
     });
-
     const propertyRevenue: Record<string, number> = {};
     const unitRevenue: Record<string, { revenue: number; property: string }> = {};
-
     invoices.forEach(inv => {
       const propName = inv.tenancy.unit.property.name;
       const unitName = inv.tenancy.unit.name;
-
       propertyRevenue[propName] = (propertyRevenue[propName] || 0) + inv.totalAmount;
-
       if (!unitRevenue[unitName]) {
         unitRevenue[unitName] = { revenue: 0, property: propName };
       }
       unitRevenue[unitName].revenue += inv.totalAmount;
     });
-
     const properties = Object.entries(propertyRevenue).map(([name, value]) => ({ name, value }));
     const units = Object.entries(unitRevenue).map(([name, data]) => ({ name, propertyName: data.property, value: data.revenue }));
-
     res.json({ properties, units });
   } catch (err) {
     next(err);
   }
 });
-
-// Get all properties for owner
 ownerRouter.get("/properties", async (req, res, next) => {
   try {
     const ownerId = req.user!.id;
@@ -209,14 +179,11 @@ ownerRouter.get("/properties", async (req, res, next) => {
       },
       orderBy: { createdAt: "desc" }
     });
-
     res.json({ properties });
   } catch (err) {
     next(err);
   }
 });
-
-// Create property
 ownerRouter.post("/properties", async (req, res, next) => {
   try {
     const ownerId = req.user!.id;
@@ -226,11 +193,9 @@ ownerRouter.post("/properties", async (req, res, next) => {
       city: string;
       locality: string;
     };
-
     if (!name || !address || !city || !locality) {
       return res.status(400).json({ error: { message: "name, address, city and locality are required" } });
     }
-
     const property = await prisma.property.create({
       data: {
         name,
@@ -240,14 +205,11 @@ ownerRouter.post("/properties", async (req, res, next) => {
         ownerId
       }
     });
-
     res.status(201).json({ property });
   } catch (err) {
     next(err);
   }
 });
-
-// Create unit
 ownerRouter.post("/properties/:propertyId/units", async (req, res, next) => {
   try {
     const ownerId = req.user!.id;
@@ -257,20 +219,15 @@ ownerRouter.post("/properties/:propertyId/units", async (req, res, next) => {
       rentAmount: number;
       deposit: number;
     };
-
     if (!name || !rentAmount || !deposit) {
       return res.status(400).json({ error: { message: "name, rentAmount and deposit are required" } });
     }
-
-    // Verify property belongs to owner
     const property = await prisma.property.findFirst({
       where: { id: propertyId, ownerId }
     });
-
     if (!property) {
       return res.status(404).json({ error: { message: "Property not found" } });
     }
-
     const unit = await prisma.unit.create({
       data: {
         name,
@@ -280,20 +237,14 @@ ownerRouter.post("/properties/:propertyId/units", async (req, res, next) => {
         status: "AVAILABLE"
       }
     });
-
     res.status(201).json({ unit });
   } catch (err) {
     next(err);
   }
 });
-
-// Tenant management table - shows both assigned and unassigned tenants
 ownerRouter.get("/tenants", async (req, res, next) => {
   try {
     const ownerId = req.user!.id;
-
-    // Get all tenants created by this owner (we'll track this via a createdByOwnerId field or get all TENANT users)
-    // For now, get all tenants that have tenancies with this owner's units
     const tenancies = await prisma.tenancy.findMany({
       where: {
         unit: {
@@ -312,8 +263,6 @@ ownerRouter.get("/tenants", async (req, res, next) => {
         }
       }
     });
-
-    // Also get all TENANT users (for now, we'll show all tenants - in production you'd track who created them)
     const allTenants = await prisma.user.findMany({
       where: { role: "TENANT" },
       include: {
@@ -328,8 +277,6 @@ ownerRouter.get("/tenants", async (req, res, next) => {
         }
       }
     });
-
-    // Map assigned tenants
     const assignedRows = tenancies.map((t) => ({
       tenantId: t.tenant.id,
       tenancyId: t.id,
@@ -349,8 +296,6 @@ ownerRouter.get("/tenants", async (req, res, next) => {
         relation: o.relation
       }))
     }));
-
-    // Map unassigned tenants (tenants without tenancies or tenancies not in this owner's properties)
     const assignedTenantIds = new Set(tenancies.map((t) => t.tenant.id));
     const unassignedTenants = allTenants
       .filter((tenant) => !assignedTenantIds.has(tenant.id))
@@ -368,14 +313,11 @@ ownerRouter.get("/tenants", async (req, res, next) => {
         isAssigned: false,
         occupants: []
       }));
-
     res.json({ tenants: [...assignedRows, ...unassignedTenants] });
   } catch (err) {
     next(err);
   }
 });
-
-// Bangalore-specific tanker water billing and invoice creation
 ownerRouter.post("/billing/tanker-split", async (req, res, next) => {
   try {
     const ownerId = req.user!.id;
@@ -383,7 +325,6 @@ ownerRouter.post("/billing/tanker-split", async (req, res, next) => {
     if (!propertyId || !totalCost || totalCost <= 0) {
       return res.status(400).json({ error: { message: "propertyId and positive totalCost are required" } });
     }
-
     const property = await prisma.property.findFirst({
       where: { id: propertyId, ownerId },
       include: {
@@ -400,11 +341,9 @@ ownerRouter.post("/billing/tanker-split", async (req, res, next) => {
         }
       }
     });
-
     if (!property) {
       return res.status(404).json({ error: { message: "Property not found" } });
     }
-
     let activeUnits = property.units.filter((u) => u.tenancies.length > 0);
     if (unitIds && unitIds.length > 0) {
       activeUnits = activeUnits.filter((u) => unitIds.includes(u.id));
@@ -413,25 +352,17 @@ ownerRouter.post("/billing/tanker-split", async (req, res, next) => {
     if (totalResidents === 0) {
       return res.status(400).json({ error: { message: "No residents found for tanker split" } });
     }
-
     const perResident = totalCost / totalResidents;
     const now = new Date();
-
     const createdInvoices = [];
-
     for (const unit of activeUnits) {
       const tenancy = unit.tenancies[0];
       const residents = unit.occupants.length || 1;
       const waterAmount = Math.round(perResident * residents);
-
-      // Determine due date from config or default to 'now'
       let dueDate = new Date();
       if (tenancy.billingConfig) {
         dueDate = new Date(now.getFullYear(), now.getMonth(), tenancy.billingConfig.billDueDay);
-        // If the date is in the past for this month, set it for next month? 
-        // For now, we just set it to this month's configured day.
       }
-
       const invoice = await prisma.invoice.create({
         data: {
           tenancyId: tenancy.id,
@@ -449,7 +380,6 @@ ownerRouter.post("/billing/tanker-split", async (req, res, next) => {
           }
         }
       });
-
       createdInvoices.push({
         invoiceId: invoice.id,
         unitName: unit.name,
@@ -457,7 +387,6 @@ ownerRouter.post("/billing/tanker-split", async (req, res, next) => {
         amount: waterAmount
       });
     }
-
     res.json({
       totalCost,
       totalResidents,
@@ -468,8 +397,6 @@ ownerRouter.post("/billing/tanker-split", async (req, res, next) => {
     next(err);
   }
 });
-
-// Communication log viewer
 ownerRouter.get("/automation-log", async (req, res, next) => {
   try {
     const ownerId = req.user!.id;
@@ -507,14 +434,11 @@ ownerRouter.get("/automation-log", async (req, res, next) => {
       },
       orderBy: { createdAt: "desc" }
     });
-
     res.json({ logs });
   } catch (err) {
     next(err);
   }
 });
-
-// Security deposit tracker
 ownerRouter.get("/security-deposits", async (req, res, next) => {
   try {
     const ownerId = req.user!.id;
@@ -541,7 +465,6 @@ ownerRouter.get("/security-deposits", async (req, res, next) => {
         }
       }
     });
-
     const rows = deposits.map((d) => {
       const totalDeductions = d.paintingDeduction + d.cleaningDeduction + d.otherDeduction;
       const balance = d.initialAmount - totalDeductions;
@@ -558,13 +481,11 @@ ownerRouter.get("/security-deposits", async (req, res, next) => {
         balance
       };
     });
-
     res.json({ deposits: rows });
   } catch (err) {
     next(err);
   }
 });
-
 ownerRouter.post("/security-deposits/:tenancyId/deductions", async (req, res, next) => {
   try {
     const ownerId = req.user!.id;
@@ -574,7 +495,6 @@ ownerRouter.post("/security-deposits/:tenancyId/deductions", async (req, res, ne
       cleaningDeduction?: number;
       otherDeduction?: number;
     };
-
     const tenancy = await prisma.tenancy.findFirst({
       where: {
         id: tenancyId,
@@ -585,16 +505,14 @@ ownerRouter.post("/security-deposits/:tenancyId/deductions", async (req, res, ne
         }
       }
     });
-
     if (!tenancy) {
       return res.status(404).json({ error: { message: "Tenancy not found" } });
     }
-
     const deposit = await prisma.securityDeposit.upsert({
       where: { tenancyId },
       create: {
         tenancyId,
-        initialAmount: 10 * 10000, // default 10-month deposit placeholder
+        initialAmount: 10 * 10000, 
         paintingDeduction,
         cleaningDeduction,
         otherDeduction
@@ -605,41 +523,33 @@ ownerRouter.post("/security-deposits/:tenancyId/deductions", async (req, res, ne
         otherDeduction
       }
     });
-
     res.json({ deposit });
   } catch (err) {
     next(err);
   }
 });
-
 ownerRouter.post("/security-deposits/:tenancyId/verify", async (req, res, next) => {
   try {
     const ownerId = req.user!.id;
     const tenancyId = req.params.tenancyId;
-
     const tenancy = await prisma.tenancy.findFirst({
       where: {
         id: tenancyId,
         unit: { property: { ownerId } }
       }
     });
-
     if (!tenancy) {
       return res.status(404).json({ error: { message: "Tenancy not found" } });
     }
-
     const updated = await prisma.securityDeposit.update({
       where: { tenancyId },
       data: { status: "VERIFIED" }
     });
-
     res.json({ deposit: updated });
   } catch (err) {
     next(err);
   }
 });
-
-// Owner-only endpoint to create tenant accounts
 ownerRouter.post("/tenants/create", async (req, res, next) => {
   try {
     const ownerId = req.user!.id;
@@ -648,22 +558,15 @@ ownerRouter.post("/tenants/create", async (req, res, next) => {
       password: string;
       name?: string;
     };
-
     if (!email || !password) {
       return res.status(400).json({ error: { message: "email and password are required" } });
     }
-
-    // Check if email already exists
     const existing = await prisma.user.findUnique({ where: { email } });
     if (existing) {
       return res.status(400).json({ error: { message: "Email already in use" } });
     }
-
-    // Hash password for tenant account
     const SALT_ROUNDS = 10;
     const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
-
-    // Create tenant user
     const tenant = await prisma.user.create({
       data: {
         email,
@@ -679,7 +582,6 @@ ownerRouter.post("/tenants/create", async (req, res, next) => {
         createdAt: true
       }
     });
-
     res.status(201).json({
       message: "Tenant account created successfully",
       tenant
@@ -688,8 +590,6 @@ ownerRouter.post("/tenants/create", async (req, res, next) => {
     next(err);
   }
 });
-
-// Assign tenant to unit (create tenancy)
 ownerRouter.post("/tenants/:tenantId/assign", async (req, res, next) => {
   try {
     const ownerId = req.user!.id;
@@ -698,12 +598,9 @@ ownerRouter.post("/tenants/:tenantId/assign", async (req, res, next) => {
       unitId: string;
       startDate?: string;
     };
-
     if (!unitId) {
       return res.status(400).json({ error: { message: "unitId is required" } });
     }
-
-    // Verify unit belongs to owner
     const unit = await prisma.unit.findFirst({
       where: {
         id: unitId,
@@ -717,26 +614,18 @@ ownerRouter.post("/tenants/:tenantId/assign", async (req, res, next) => {
         }
       }
     });
-
     if (!unit) {
       return res.status(404).json({ error: { message: "Unit not found or doesn't belong to you" } });
     }
-
-    // Check if unit is already occupied
     if (unit.tenancies.length > 0) {
       return res.status(400).json({ error: { message: "Unit is already occupied" } });
     }
-
-    // Verify tenant exists and is a TENANT
     const tenant = await prisma.user.findFirst({
       where: { id: tenantId, role: "TENANT" }
     });
-
     if (!tenant) {
       return res.status(404).json({ error: { message: "Tenant not found" } });
     }
-
-    // Create tenancy
     const tenancy = await prisma.tenancy.create({
       data: {
         tenantId,
@@ -752,13 +641,10 @@ ownerRouter.post("/tenants/:tenantId/assign", async (req, res, next) => {
         }
       }
     });
-
-    // Update unit status
     await prisma.unit.update({
       where: { id: unitId },
       data: { status: "OCCUPIED" }
     });
-
     res.status(201).json({
       message: "Tenant assigned to unit successfully",
       tenancy
@@ -767,8 +653,6 @@ ownerRouter.post("/tenants/:tenantId/assign", async (req, res, next) => {
     next(err);
   }
 });
-
-// Get maintenance tickets from tenants
 ownerRouter.get("/maintenance-tickets", async (req, res, next) => {
   try {
     const ownerId = req.user!.id;
@@ -819,21 +703,16 @@ ownerRouter.get("/maintenance-tickets", async (req, res, next) => {
       },
       orderBy: { createdAt: "desc" }
     });
-
     res.json({ tickets });
   } catch (err) {
     next(err);
   }
 });
-
-// Update maintenance ticket status (owner)
 ownerRouter.patch("/maintenance-tickets/:ticketId", async (req, res, next) => {
   try {
     const ownerId = req.user!.id;
     const ticketId = req.params.ticketId;
     const { status } = req.body as { status: string };
-
-    // Verify ticket belongs to owner's property
     const ticket = await prisma.maintenanceTicket.findFirst({
       where: {
         id: ticketId,
@@ -861,72 +740,53 @@ ownerRouter.patch("/maintenance-tickets/:ticketId", async (req, res, next) => {
         ]
       }
     });
-
     if (!ticket) {
       return res.status(404).json({ error: { message: "Ticket not found or doesn't belong to your properties" } });
     }
-
     const updated = await prisma.maintenanceTicket.update({
       where: { id: ticketId },
       data: { status }
     });
-
     res.json({ ticket: updated });
   } catch (err) {
     next(err);
   }
 });
-
-// Reset tenant password (owner)
 ownerRouter.patch("/tenants/:tenantId/password", async (req, res, next) => {
   try {
     const ownerId = req.user!.id;
     const tenantId = req.params.tenantId;
     const { password } = req.body;
-
     if (!password || password.length < 6) {
       return res.status(400).json({ error: { message: "Password must be at least 6 characters" } });
     }
-
-    // Verify tenant belongs to owner (via any tenancy property chain) or is a TENANT role
     const tenant = await prisma.user.findFirst({
       where: { id: tenantId, role: "TENANT" }
     });
-
     if (!tenant) {
       return res.status(404).json({ error: { message: "Tenant not found" } });
     }
-
     const salt = await bcrypt.genSalt(10);
     const passwordHash = await bcrypt.hash(password, salt);
-
     await prisma.user.update({
       where: { id: tenantId },
       data: { passwordHash }
     });
-
     res.json({ message: "Password reset successfully" });
   } catch (err) {
     next(err);
   }
 });
-
-// Get individual tenant profile (owner)
 ownerRouter.get("/tenants/:tenantId/profile", async (req, res, next) => {
   try {
     const ownerId = req.user!.id;
     const tenantId = req.params.tenantId;
-
-    // Get tenant user
     const tenant = await prisma.user.findFirst({
       where: { id: tenantId, role: "TENANT" }
     });
-
     if (!tenant) {
       return res.status(404).json({ error: { message: "Tenant not found" } });
     }
-
-    // Get tenancy information
     const tenancy = await prisma.tenancy.findFirst({
       where: {
         tenantId,
@@ -946,9 +806,7 @@ ownerRouter.get("/tenants/:tenantId/profile", async (req, res, next) => {
         billingConfig: true
       }
     });
-
     if (!tenancy) {
-      // Tenant exists but not assigned to any of owner's units
       return res.json({
         tenantId: tenant.id,
         tenantName: tenant.name || tenant.email,
@@ -968,7 +826,6 @@ ownerRouter.get("/tenants/:tenantId/profile", async (req, res, next) => {
         billingConfig: null
       });
     }
-
     res.json({
       tenantId: tenant.id,
       tenantName: tenant.name || tenant.email,
@@ -1005,8 +862,6 @@ ownerRouter.get("/tenants/:tenantId/profile", async (req, res, next) => {
     next(err);
   }
 });
-
-// Update billing configuration for a tenant (owner)
 ownerRouter.post("/tenants/:tenantId/billing-config", async (req, res, next) => {
   try {
     const ownerId = req.user!.id;
@@ -1015,16 +870,12 @@ ownerRouter.post("/tenants/:tenantId/billing-config", async (req, res, next) => 
       rentDueDay: number;
       billDueDay: number;
     };
-
     if (!rentDueDay || !billDueDay) {
       return res.status(400).json({ error: { message: "rentDueDay and billDueDay are required" } });
     }
-
     if (rentDueDay < 1 || rentDueDay > 31 || billDueDay < 1 || billDueDay > 31) {
       return res.status(400).json({ error: { message: "Due days must be between 1 and 31" } });
     }
-
-    // Get tenancy for this tenant in owner's properties
     const tenancy = await prisma.tenancy.findFirst({
       where: {
         tenantId,
@@ -1035,12 +886,9 @@ ownerRouter.post("/tenants/:tenantId/billing-config", async (req, res, next) => 
         }
       }
     });
-
     if (!tenancy) {
       return res.status(404).json({ error: { message: "Tenant not assigned to any of your units" } });
     }
-
-    // Upsert billing configuration
     const billingConfig = await prisma.billingConfig.upsert({
       where: { tenancyId: tenancy.id },
       create: {
@@ -1053,7 +901,6 @@ ownerRouter.post("/tenants/:tenantId/billing-config", async (req, res, next) => 
         billDueDay
       }
     });
-
     res.json({
       message: "Billing configuration updated successfully",
       billingConfig
@@ -1062,13 +909,10 @@ ownerRouter.post("/tenants/:tenantId/billing-config", async (req, res, next) => 
     next(err);
   }
 });
-
-// Generate Rent Invoice manually for a tenant
 ownerRouter.post("/tenants/:tenantId/generate-rent", async (req, res, next) => {
   try {
     const ownerId = req.user!.id;
     const tenantId = req.params.tenantId;
-
     const tenancy = await prisma.tenancy.findFirst({
       where: {
         tenantId,
@@ -1084,17 +928,13 @@ ownerRouter.post("/tenants/:tenantId/generate-rent", async (req, res, next) => {
         billingConfig: true
       }
     });
-
     if (!tenancy) {
       return res.status(404).json({ error: { message: "Active tenancy not found' or doesn't belong to you" } });
     }
-
     const now = new Date();
     const rentDueDay = tenancy.billingConfig?.rentDueDay || 5;
     const dueDate = new Date(now.getFullYear(), now.getMonth(), rentDueDay);
-
     const rentAmount = tenancy.unit.rentAmount;
-
     const invoice = await prisma.invoice.create({
       data: {
         tenancyId: tenancy.id,
@@ -1112,7 +952,6 @@ ownerRouter.post("/tenants/:tenantId/generate-rent", async (req, res, next) => {
         }
       }
     });
-
     res.json({
       message: "Rent invoice generated successfully",
       invoice
@@ -1121,21 +960,14 @@ ownerRouter.post("/tenants/:tenantId/generate-rent", async (req, res, next) => {
     next(err);
   }
 });
-
-// Rent Analytics for Owners
 ownerRouter.get("/analytics/rent-summary", async (req, res, next) => {
   try {
     const ownerId = req.user!.id;
     const { month, year } = req.query as { month?: string; year?: string };
-
     const targetMonth = month ? parseInt(month) : new Date().getMonth();
     const targetYear = year ? parseInt(year) : new Date().getFullYear();
-
-    // Start and end of the month
     const startDate = new Date(targetYear, targetMonth, 1);
     const endDate = new Date(targetYear, targetMonth + 1, 0, 23, 59, 59);
-
-    // Get all tenancies belonging to this owner
     const tenancies = await prisma.tenancy.findMany({
       where: {
         unit: {
@@ -1158,12 +990,10 @@ ownerRouter.get("/analytics/rent-summary", async (req, res, next) => {
         }
       }
     });
-
     const summary = tenancies.map(t => {
       const rentInvoice = t.invoices.find(inv =>
         inv.items?.some(item => item.category === "RENT") || inv.totalAmount === t.unit.rentAmount
       );
-
       return {
         tenantId: t.tenant.id,
         tenantName: t.tenant.name || t.tenant.email,
@@ -1175,11 +1005,9 @@ ownerRouter.get("/analytics/rent-summary", async (req, res, next) => {
         invoiceId: rentInvoice?.id || null
       };
     });
-
     const totalExpected = summary.length;
     const paidCount = summary.filter(s => s.status === "PAID").length;
     const pendingCount = summary.filter(s => s.status === "PENDING" || s.status === "OVERDUE").length;
-
     res.json({
       month: targetMonth,
       year: targetYear,
@@ -1192,13 +1020,10 @@ ownerRouter.get("/analytics/rent-summary", async (req, res, next) => {
     next(err);
   }
 });
-
-// Individual Tenant Payment History (for Owner)
 ownerRouter.get("/tenants/:tenantId/payment-history", async (req, res, next) => {
   try {
     const ownerId = req.user!.id;
     const tenantId = req.params.tenantId;
-
     const invoices = await prisma.invoice.findMany({
       where: {
         tenancy: {
@@ -1212,14 +1037,11 @@ ownerRouter.get("/tenants/:tenantId/payment-history", async (req, res, next) => 
       },
       orderBy: { dueDate: "desc" }
     });
-
     res.json({ invoices });
   } catch (err) {
     next(err);
   }
 });
-
-// Notice Board Routes for Owners
 ownerRouter.get("/notices", async (req, res, next) => {
   try {
     const ownerId = req.user!.id;
@@ -1232,16 +1054,13 @@ ownerRouter.get("/notices", async (req, res, next) => {
     next(err);
   }
 });
-
 ownerRouter.post("/notices", async (req, res, next) => {
   try {
     const ownerId = req.user!.id;
     const { title, content, priority } = req.body;
-
     if (!title || !content) {
       return res.status(400).json({ error: { message: "Title and content are required" } });
     }
-
     const notice = await prisma.notice.create({
       data: {
         title,
@@ -1250,40 +1069,29 @@ ownerRouter.post("/notices", async (req, res, next) => {
         ownerId
       }
     });
-
     res.status(201).json({ notice });
   } catch (err) {
     next(err);
   }
 });
-
 ownerRouter.delete("/notices/:id", async (req, res, next) => {
   try {
     const ownerId = req.user!.id;
     const noticeId = req.params.id;
-
     const notice = await prisma.notice.findFirst({
       where: { id: noticeId, ownerId }
     });
-
     if (!notice) {
       return res.status(404).json({ error: { message: "Notice not found" } });
     }
-
     await prisma.notice.delete({
       where: { id: noticeId }
     });
-
     res.json({ message: "Notice deleted successfully" });
   } catch (err) {
     next(err);
   }
 });
-
-
-
-
-// --- EXPENSES ---
 ownerRouter.get("/expenses", async (req, res, next) => {
   try {
     const ownerId = req.user!.id;
@@ -1295,7 +1103,6 @@ ownerRouter.get("/expenses", async (req, res, next) => {
     res.json({ expenses });
   } catch (err) { next(err); }
 });
-
 ownerRouter.post("/expenses", async (req, res, next) => {
   try {
     const { label, amount, category, propertyId, description, date } = req.body;
@@ -1305,8 +1112,6 @@ ownerRouter.post("/expenses", async (req, res, next) => {
     res.status(201).json({ expense });
   } catch (err) { next(err); }
 });
-
-// --- VENDORS ---
 ownerRouter.get("/vendors", async (req, res, next) => {
   try {
     const ownerId = req.user!.id;
@@ -1314,7 +1119,6 @@ ownerRouter.get("/vendors", async (req, res, next) => {
     res.json({ vendors });
   } catch (err) { next(err); }
 });
-
 ownerRouter.post("/vendors", async (req, res, next) => {
   try {
     const ownerId = req.user!.id;
@@ -1324,8 +1128,6 @@ ownerRouter.post("/vendors", async (req, res, next) => {
     res.status(201).json({ vendor });
   } catch (err) { next(err); }
 });
-
-// --- ASSETS ---
 ownerRouter.get("/assets", async (req, res, next) => {
   try {
     const ownerId = req.user!.id;
@@ -1336,15 +1138,12 @@ ownerRouter.get("/assets", async (req, res, next) => {
     res.json({ assets });
   } catch (err) { next(err); }
 });
-
 ownerRouter.post("/assets", async (req, res, next) => {
   try {
     const asset = await prisma.asset.create({ data: { ...req.body } });
     res.status(201).json({ asset });
   } catch (err) { next(err); }
 });
-
-// --- AUTOMATION ---
 ownerRouter.post("/automation/generate-monthly-invoices", async (req, res, next) => {
   try {
     const ownerId = req.user!.id;
@@ -1352,15 +1151,11 @@ ownerRouter.post("/automation/generate-monthly-invoices", async (req, res, next)
       where: { unit: { property: { ownerId } }, endDate: null },
       include: { unit: true, billingConfig: true }
     });
-
     const now = new Date();
     const currentMonth = now.getMonth();
     const currentYear = now.getFullYear();
-
     let createdCount = 0;
-
     for (const tenancy of tenancies) {
-      // Check if invoice already exists for this month
       const existing = await prisma.invoice.findFirst({
         where: {
           tenancyId: tenancy.id,
@@ -1370,7 +1165,6 @@ ownerRouter.post("/automation/generate-monthly-invoices", async (req, res, next)
           }
         }
       });
-
       if (!existing) {
         const dueDate = new Date(currentYear, currentMonth, tenancy.billingConfig?.rentDueDay || 5);
         await prisma.invoice.create({
@@ -1391,11 +1185,9 @@ ownerRouter.post("/automation/generate-monthly-invoices", async (req, res, next)
         createdCount++;
       }
     }
-
     res.json({ message: `Successfully generated ${createdCount} invoices.` });
   } catch (err) { next(err); }
 });
-
 ownerRouter.post("/automation/send-reminders", async (req, res, next) => {
   try {
     const ownerId = req.user!.id;
@@ -1406,12 +1198,10 @@ ownerRouter.post("/automation/send-reminders", async (req, res, next) => {
       },
       include: { tenancy: { include: { tenant: true } } }
     });
-
     for (const inv of pendingInvoices) {
       const tenant = inv.tenancy.tenant as any;
       console.log(`[Automation] Processing reminder for ${tenant.name} (${tenant.email}). Phone: ${tenant.phone}`);
       const messageText = `Dear ${tenant.name}, this is a reminder for your rent of ₹${inv.totalAmount} due on ${inv.dueDate.toLocaleDateString()}. Please pay via the BLR Rental portal.`;
-
       await prisma.communicationLog.create({
         data: {
           invoiceId: inv.id,
@@ -1420,7 +1210,6 @@ ownerRouter.post("/automation/send-reminders", async (req, res, next) => {
           message: messageText
         }
       });
-
       if (tenant.phone) {
         await NotificationService.sendReminders(
           tenant.name || 'Tenant',
@@ -1430,31 +1219,24 @@ ownerRouter.post("/automation/send-reminders", async (req, res, next) => {
         );
       }
     }
-
     res.json({ message: `Sent ${pendingInvoices.length} reminders.` });
   } catch (err) { next(err); }
 });
-
 ownerRouter.get('/tenants/:tenantId/lease', async (req, res, next) => {
   try {
     const ownerId = req.user!.id;
     const tenantId = req.params.tenantId;
-
     const tenancy = await prisma.tenancy.findFirst({
       where: { tenantId, unit: { property: { ownerId } }, endDate: null },
       include: { tenant: true, unit: { include: { property: true } } }
     });
-
     if (!tenancy) {
       return res.status(404).json({ error: { message: 'Active tenancy not found' } });
     }
-
     const PDFDocument = require('pdfkit');
     const doc = new PDFDocument({ margin: 50 });
-
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', 'attachment; filename=Lease_Agreement.pdf');
-
     doc.pipe(res);
     doc.fontSize(25).text('RESIDENTIAL LEASE AGREEMENT', { align: 'center' });
     doc.moveDown();
@@ -1468,12 +1250,9 @@ ownerRouter.get('/tenants/:tenantId/lease', async (req, res, next) => {
     doc.end();
   } catch (err) { next(err); }
 });
-
-// Get pending cash payments for approval
 ownerRouter.get('/pending-cash-payments', async (req, res, next) => {
   try {
     const ownerId = req.user!.id;
-
     const pendingPayments = await prisma.invoice.findMany({
       where: {
         cashApprovalPending: true,
@@ -1507,7 +1286,6 @@ ownerRouter.get('/pending-cash-payments', async (req, res, next) => {
         dueDate: 'desc'
       }
     });
-
     const formatted = pendingPayments.map(inv => ({
       invoiceId: inv.id,
       amount: inv.totalAmount,
@@ -1518,19 +1296,15 @@ ownerRouter.get('/pending-cash-payments', async (req, res, next) => {
       unitName: inv.tenancy.unit.name,
       paymentRef: inv.paymentRefs[0]?.providerRef
     }));
-
     res.json({ pendingPayments: formatted });
   } catch (err) {
     next(err);
   }
 });
-
-// Approve cash payment
 ownerRouter.post('/invoices/:invoiceId/approve-cash', async (req, res, next) => {
   try {
     const ownerId = req.user!.id;
     const invoiceId = req.params.invoiceId;
-
     const invoice = await prisma.invoice.findFirst({
       where: {
         id: invoiceId,
@@ -1543,16 +1317,12 @@ ownerRouter.post('/invoices/:invoiceId/approve-cash', async (req, res, next) => 
         }
       }
     });
-
     if (!invoice) {
       return res.status(404).json({ error: { message: 'Invoice not found' } });
     }
-
     if (!invoice.cashApprovalPending) {
       return res.status(400).json({ error: { message: 'No pending cash payment for this invoice' } });
     }
-
-    // Approve payment
     await prisma.invoice.update({
       where: { id: invoiceId },
       data: {
@@ -1561,8 +1331,6 @@ ownerRouter.post('/invoices/:invoiceId/approve-cash', async (req, res, next) => 
         cashApprovalPending: false
       }
     });
-
-    // Update payment reference
     await prisma.paymentReference.updateMany({
       where: {
         invoiceId,
@@ -1572,19 +1340,15 @@ ownerRouter.post('/invoices/:invoiceId/approve-cash', async (req, res, next) => 
         status: 'APPROVED'
       }
     });
-
     res.json({ message: 'Cash payment approved successfully' });
   } catch (err) {
     next(err);
   }
 });
-
-// Reject cash payment
 ownerRouter.post('/invoices/:invoiceId/reject-cash', async (req, res, next) => {
   try {
     const ownerId = req.user!.id;
     const invoiceId = req.params.invoiceId;
-
     const invoice = await prisma.invoice.findFirst({
       where: {
         id: invoiceId,
@@ -1597,16 +1361,12 @@ ownerRouter.post('/invoices/:invoiceId/reject-cash', async (req, res, next) => {
         }
       }
     });
-
     if (!invoice) {
       return res.status(404).json({ error: { message: 'Invoice not found' } });
     }
-
     if (!invoice.cashApprovalPending) {
       return res.status(400).json({ error: { message: 'No pending cash payment for this invoice' } });
     }
-
-    // Reject payment
     await prisma.invoice.update({
       where: { id: invoiceId },
       data: {
@@ -1615,8 +1375,6 @@ ownerRouter.post('/invoices/:invoiceId/reject-cash', async (req, res, next) => {
         cashApprovalPending: false
       }
     });
-
-    // Update payment reference
     await prisma.paymentReference.updateMany({
       where: {
         invoiceId,
@@ -1626,9 +1384,8 @@ ownerRouter.post('/invoices/:invoiceId/reject-cash', async (req, res, next) => {
         status: 'REJECTED'
       }
     });
-
     res.json({ message: 'Cash payment rejected' });
   } catch (err) {
     next(err);
   }
-});
+});

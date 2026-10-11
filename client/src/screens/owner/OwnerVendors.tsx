@@ -3,7 +3,6 @@ import axios from "axios";
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { UserPlus, Phone, Mail, MapPin, Wrench, Zap, Trash2, Search } from "lucide-react";
-
 interface Vendor {
     id: string;
     name: string;
@@ -13,7 +12,6 @@ interface Vendor {
     email: string | null;
     address: string | null;
 }
-
 export function OwnerVendors() {
     const queryClient = useQueryClient();
     const [showForm, setShowForm] = useState(false);
@@ -21,12 +19,10 @@ export function OwnerVendors() {
     const [phone, setPhone] = useState("");
     const [category, setCategory] = useState("PLUMBER");
     const [contactName, setContactName] = useState("");
-
     const { data: vendorsData, isLoading } = useQuery<{ vendors: Vendor[] }>({
         queryKey: ["owner-vendors"],
         queryFn: async () => (await axios.get("/api/owner/vendors")).data
     });
-
     const createMutation = useMutation({
         mutationFn: async (vars: any) => await axios.post("/api/owner/vendors", vars),
         onSuccess: () => {
@@ -36,12 +32,10 @@ export function OwnerVendors() {
             setPhone("");
         }
     });
-
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         createMutation.mutate({ name, phone, category, contactName });
     };
-
     return (
         <div className="space-y-8 animate-fade-in-up">
             <div className="flex justify-between items-end">
@@ -57,7 +51,6 @@ export function OwnerVendors() {
                     Register Vendor
                 </button>
             </div>
-
             {showForm && (
                 <motion.div
                     initial={{ opacity: 0, y: -20 }}
@@ -108,7 +101,6 @@ export function OwnerVendors() {
                     </form>
                 </motion.div>
             )}
-
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {vendorsData?.vendors.map((vendor) => (
                     <motion.div
@@ -125,12 +117,10 @@ export function OwnerVendors() {
                                 {vendor.category}
                             </span>
                         </div>
-
                         <h3 className="serif-heading text-xl text-pearl-50 mb-1">{vendor.name}</h3>
                         {vendor.contactName && (
                             <p className="text-sm text-gold-700 font-medium mb-4 italic">POC: {vendor.contactName}</p>
                         )}
-
                         <div className="space-y-3 pt-4 border-t border-gold-500/5">
                             <a href={`tel:${vendor.phone}`} className="flex items-center gap-3 text-gold-400 hover:text-gold-500 transition-colors">
                                 <Phone size={14} />
@@ -148,4 +138,4 @@ export function OwnerVendors() {
             </div>
         </div>
     );
-}
+}

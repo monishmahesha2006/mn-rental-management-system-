@@ -3,7 +3,6 @@ import { useNavigate, Link, useLocation } from "react-router-dom";
 import { useAuth } from "../shared/AuthContext";
 import { motion, AnimatePresence } from "framer-motion";
 import { Lock, Mail, ArrowRight, Home, ShieldCheck, User, Sparkles } from "lucide-react";
-
 export function LoginPage() {
   const { login, isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
@@ -12,7 +11,6 @@ export function LoginPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
   useEffect(() => {
     if (isAuthenticated && user) {
       const from = (location.state as any)?.from?.pathname;
@@ -23,7 +21,6 @@ export function LoginPage() {
       }
     }
   }, [isAuthenticated, user, navigate, location]);
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -39,50 +36,48 @@ export function LoginPage() {
       setLoading(false);
     }
   };
-
   return (
-    <div className="relative min-h-screen w-full flex items-center justify-center overflow-hidden bg-navy-950">
+    <div className="relative min-h-screen w-full flex items-center justify-center overflow-hidden">
       <div className="luxury-bg" />
-
-      {/* Decorative Glow Elements */}
-      <div className="absolute top-0 left-0 w-[600px] h-[600px] bg-gold-500/10 rounded-full blur-[120px]" />
-      <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-emerald-800/10 rounded-full blur-[120px]" />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gold-500/5 rounded-full blur-[150px]" />
-
-      {/* Main Login Content */}
+      {/* dot pattern overlay */}
+      <div className="absolute inset-0 hero-pattern opacity-60 pointer-events-none" />
+      {/* ambient orbs */}
+      <div className="absolute top-0 left-0 w-[560px] h-[560px] rounded-full blur-[140px] pointer-events-none" style={{background: 'radial-gradient(circle, rgba(201,150,42,0.13) 0%, transparent 70%)'}} />
+      <div className="absolute bottom-0 right-0 w-[460px] h-[460px] rounded-full blur-[120px] pointer-events-none" style={{background: 'radial-gradient(circle, rgba(45,43,127,0.10) 0%, transparent 70%)'}} />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] rounded-full blur-[160px] pointer-events-none" style={{background: 'radial-gradient(circle, rgba(253,243,220,0.5) 0%, transparent 70%)'}} />
+      { }
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, ease: [0.4, 0, 0.2, 1] }}
         className="relative z-10 w-full max-w-md px-6"
       >
-        <div className="glass-card p-12 md:p-16 luxury-shadow">
-          {/* Logo/Brand */}
-          <div className="flex justify-center mb-12">
-            <div className="relative">
-              <div className="h-20 w-20 rounded-[1.5rem] bg-gradient-to-br from-gold-500 to-gold-600 flex items-center justify-center shadow-2xl luxury-glow">
-                <Home size={36} className="text-navy-950" strokeWidth={2} />
+        <div className="glass-card p-10 md:p-14 luxury-shadow">
+          {/* Logo */}
+          <div className="flex justify-center mb-10">
+            <div className="relative animate-float">
+              <div className="h-18 w-18 rounded-2xl flex items-center justify-center shadow-xl" style={{background: 'linear-gradient(135deg, var(--indigo-deep), var(--indigo-mid))', width: '4.5rem', height: '4.5rem', boxShadow: '0 8px 30px rgba(45,43,127,0.30)'}}>
+                <Home size={30} className="text-white" strokeWidth={2} />
               </div>
-              <div className="absolute -top-2 -right-2 h-6 w-6 bg-gold-500 rounded-full animate-pulse luxury-glow" />
+              <div className="absolute -top-1.5 -right-1.5 h-4 w-4 rounded-full pulse-ring" style={{background: 'var(--gold)'}} />
             </div>
           </div>
-
           {/* Heading */}
-          <div className="text-center mb-12">
-            <h2 className="serif-heading text-5xl md:text-6xl text-pearl-50 mb-4 tracking-tight">
-              Welcome
+          <div className="text-center mb-9">
+            <h2 className="serif-heading text-4xl md:text-5xl mb-2.5 tracking-tight" style={{color: 'var(--slate-dark)'}}>
+              Welcome Back
             </h2>
-            <p className="text-gold-700 font-light tracking-wide text-sm">Access your exclusive residence portal</p>
+            <p className="text-sm font-light tracking-wide" style={{color: 'var(--slate)'}}>Sign in to your residence portal</p>
           </div>
-
           <form onSubmit={handleSubmit} className="space-y-8">
-            {/* Email Field */}
-            <div className="space-y-3">
-              <label className="text-xs font-medium text-gold-400 uppercase tracking-[0.15em] px-1">Email Address</label>
+            {/* Email */}
+            <div className="space-y-2">
+              <label className="text-xs font-semibold uppercase tracking-[0.14em] px-1" style={{color: 'var(--slate)'}}>Email Address</label>
               <div className="relative group">
-                <Mail className="absolute left-5 top-1/2 -translate-y-1/2 text-gold-700 group-focus-within:text-gold-400 transition-colors" size={18} strokeWidth={1.5} />
+                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 transition-colors" size={17} strokeWidth={1.6} style={{color: 'var(--slate-light)'}} />
                 <input
-                  className="luxury-input pl-14 py-5"
+                  className="luxury-input"
+                  style={{paddingLeft: '2.75rem'}}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   type="email"
@@ -91,78 +86,76 @@ export function LoginPage() {
                 />
               </div>
             </div>
-
-            {/* Password Field */}
-            <div className="space-y-3">
-              <label className="text-xs font-medium text-gold-400 uppercase tracking-[0.15em] px-1">Password</label>
+            {/* Password */}
+            <div className="space-y-2">
+              <label className="text-xs font-semibold uppercase tracking-[0.14em] px-1" style={{color: 'var(--slate)'}}>Password</label>
               <div className="relative group">
-                <Lock className="absolute left-5 top-1/2 -translate-y-1/2 text-gold-700 group-focus-within:text-gold-400 transition-colors" size={18} strokeWidth={1.5} />
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 transition-colors" size={17} strokeWidth={1.6} style={{color: 'var(--slate-light)'}} />
                 <input
-                  className="luxury-input pl-14 py-5"
+                  className="luxury-input"
+                  style={{paddingLeft: '2.75rem'}}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   type="password"
-                  placeholder="Enter password"
+                  placeholder="Enter your password"
                   required
                 />
               </div>
             </div>
-
             {error && (
               <motion.div
                 initial={{ opacity: 0, y: -5 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-red-900/20 border border-red-500/30 text-red-400 px-5 py-4 rounded-2xl text-sm font-medium flex items-center gap-2"
+                className="px-4 py-3.5 rounded-xl text-sm font-medium flex items-center gap-2"
+                style={{background: 'rgba(192,57,43,0.07)', border: '1px solid rgba(192,57,43,0.20)', color: '#c0392b'}}
               >
-                <ShieldCheck size={18} className="shrink-0" />
+                <ShieldCheck size={17} className="shrink-0" />
                 {error}
               </motion.div>
             )}
-
             <button
               type="submit"
               disabled={loading}
-              className="luxury-button w-full py-5 text-sm group"
+              className="luxury-button w-full py-4 text-sm group"
             >
               {loading ? (
-                <div className="w-5 h-5 border-2 border-navy-950 border-t-transparent rounded-full animate-spin" />
+                <div className="w-5 h-5 border-2 border-white/40 border-t-white rounded-full animate-spin" />
               ) : (
                 <>
                   Sign In
-                  <ArrowRight size={18} strokeWidth={2.5} className="group-hover:translate-x-1 transition-transform" />
+                  <ArrowRight size={17} strokeWidth={2.5} className="group-hover:translate-x-1 transition-transform" />
                 </>
               )}
             </button>
           </form>
-
-          {/* Footer */}
-          <div className="mt-12 pt-10 border-t border-gold-500/10">
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
+          <div className="mt-9 pt-7" style={{borderTop: '1px solid var(--linen)'}}>
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-5">
               <div className="text-center sm:text-left">
-                <p className="text-xs font-medium text-gold-700 uppercase tracking-[0.1em] mb-2">New Resident?</p>
-                <Link to="/register" className="text-gold-400 font-medium hover:text-gold-300 transition-colors text-sm">Create Account</Link>
+                <p className="text-xs font-semibold uppercase tracking-[0.12em] mb-1.5" style={{color: 'var(--slate-light)'}}>New Resident?</p>
+                <Link to="/register" className="text-sm font-semibold transition-colors" style={{color: 'var(--indigo-mid)'}} onMouseEnter={e => (e.currentTarget as HTMLElement).style.color = 'var(--indigo-light)'} onMouseLeave={e => (e.currentTarget as HTMLElement).style.color = 'var(--indigo-mid)'}>
+                  Create Account →
+                </Link>
               </div>
-              <div className="flex gap-4">
-                <div className="p-3 rounded-xl bg-navy-800/50 border border-gold-500/10 text-gold-700 hover:text-gold-400 hover:border-gold-500/20 transition-all cursor-help luxury-glow" title="Secure Access">
-                  <ShieldCheck size={18} strokeWidth={1.5} />
+              <div className="flex gap-3">
+                <div className="p-2.5 rounded-xl cursor-help transition-all" title="Secure Access" style={{background: 'var(--indigo-pale)', border: '1px solid rgba(45,43,127,0.12)', color: 'var(--indigo-mid)'}}>
+                  <ShieldCheck size={16} strokeWidth={1.6} />
                 </div>
-                <div className="p-3 rounded-xl bg-navy-800/50 border border-gold-500/10 text-gold-700 hover:text-gold-400 hover:border-gold-500/20 transition-all cursor-help luxury-glow" title="Verified Users">
-                  <User size={18} strokeWidth={1.5} />
+                <div className="p-2.5 rounded-xl cursor-help transition-all" title="Verified Users" style={{background: 'var(--indigo-pale)', border: '1px solid rgba(45,43,127,0.12)', color: 'var(--indigo-mid)'}}>
+                  <User size={16} strokeWidth={1.6} />
                 </div>
               </div>
             </div>
           </div>
         </div>
-
-        {/* Bottom Text */}
-        <div className="mt-8 text-center">
-          <p className="text-xs text-gold-700 tracking-[0.15em] uppercase flex items-center justify-center gap-2">
-            <Sparkles size={12} className="text-gold-500" />
+        {/* Footer tagline */}
+        <div className="mt-7 text-center">
+          <p className="text-xs uppercase tracking-[0.18em] flex items-center justify-center gap-2" style={{color: 'var(--slate-light)'}}>
+            <Sparkles size={11} style={{color: 'var(--gold)'}} />
             Premium Property Management
-            <Sparkles size={12} className="text-gold-500" />
+            <Sparkles size={11} style={{color: 'var(--gold)'}} />
           </p>
         </div>
       </motion.div>
     </div>
   );
-}
+}

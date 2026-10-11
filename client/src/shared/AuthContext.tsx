@@ -1,16 +1,13 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-
 type Role = "OWNER" | "TENANT";
-
 interface User {
   id: string;
   email: string;
   name?: string | null;
   role: Role;
 }
-
 interface AuthContextValue {
   user: User | null;
   token: string | null;
@@ -18,14 +15,11 @@ interface AuthContextValue {
   logout: () => void;
   isAuthenticated: boolean;
 }
-
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
-
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
-
   useEffect(() => {
     const stored = localStorage.getItem("blr_auth");
     if (stored) {
@@ -38,7 +32,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     }
   }, []);
-
   useEffect(() => {
     if (token) {
       axios.defaults.headers.common.Authorization = `Bearer ${token}`;
@@ -46,7 +39,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       delete axios.defaults.headers.common.Authorization;
     }
   }, [token]);
-
   const login = async ({ email, password }: { email: string; password: string }) => {
     const res = await axios.post("/api/auth/login", { email, password });
     const { token: jwt, user: u } = res.data;
@@ -55,15 +47,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem("blr_auth", JSON.stringify({ user: u, token: jwt }));
     return res.data;
   };
-
   const logout = () => {
     setUser(null);
     setToken(null);
     localStorage.removeItem("blr_auth");
-    // Redirect to login page
     navigate("/login", { replace: true });
   };
-
   return (
     <AuthContext.Provider
       value={{
@@ -78,12 +67,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     </AuthContext.Provider>
   );
 }
-
 export function useAuth() {
   const ctx = useContext(AuthContext);
   if (!ctx) {
     throw new Error("useAuth must be used within AuthProvider");
   }
   return ctx;
-}
-
+}

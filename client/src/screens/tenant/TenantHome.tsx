@@ -19,7 +19,6 @@ import {
 } from "lucide-react";
 import { format } from "date-fns";
 import { useNavigate } from "react-router-dom";
-
 interface Summary {
   outstanding: number;
   lastPaidAt: string | null;
@@ -32,14 +31,12 @@ interface Summary {
   unit: {
     name: string;
     rentAmount: number;
-
   } | null;
   depositInfo: {
     amount: number;
     status: string;
   } | null;
 }
-
 export function TenantHome() {
   const queryClient = useQueryClient();
   const { data, isLoading } = useQuery<Summary>({
@@ -49,15 +46,12 @@ export function TenantHome() {
       return res.data;
     }
   });
-
   const [message, setMessage] = useState<string | null>(null);
   const navigate = useNavigate();
-
   const { data: noticesData } = useQuery<{ notices: any[] }>({
     queryKey: ["tenant-notices"],
     queryFn: async () => (await axios.get("/api/tenant/notices")).data
   });
-
   const submitDepositMutation = useMutation({
     mutationFn: async (amount: number) => {
       const res = await axios.post("/api/tenant/security-deposits/submit", { amount });
@@ -68,9 +62,7 @@ export function TenantHome() {
       setMessage("Security deposit submitted for verification.");
     }
   });
-
   const [depositAmount, setDepositAmount] = useState<number>(0);
-
   return (
     <div className="space-y-10 animate-fade-in-up pb-16">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
@@ -91,7 +83,6 @@ export function TenantHome() {
           </div>
         </div>
       </div>
-
       {noticesData?.notices && noticesData.notices.length > 0 && (
         <div className="bg-gold-500/10 border-y border-gold-500/20 py-2 overflow-hidden whitespace-nowrap relative">
           <div className="flex animate-marquee gap-8 items-center">
@@ -105,9 +96,8 @@ export function TenantHome() {
           </div>
         </div>
       )}
-
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Payment Summary */}
+        { }
         <motion.div
           className="lg:col-span-2 glass-card p-10 border-gold-500/10 luxury-shadow relative overflow-hidden"
           initial={{ opacity: 0, y: 20 }}
@@ -117,7 +107,6 @@ export function TenantHome() {
           <div className="absolute top-0 right-0 p-8 text-gold-500/5">
             <CreditCard size={120} strokeWidth={0.5} />
           </div>
-
           <div className="relative z-10 flex flex-col h-full justify-between">
             <div className="space-y-8">
               <div className="flex items-center gap-3">
@@ -126,7 +115,6 @@ export function TenantHome() {
                 </div>
                 <h2 className="serif-heading text-2xl text-pearl-50 tracking-tight">Financial Standings</h2>
               </div>
-
               <div className="flex flex-col sm:flex-row items-baseline gap-12 pt-4">
                 <div>
                   <div className="text-[10px] font-bold text-gold-700 uppercase tracking-[0.2em] mb-4">Total Outstanding</div>
@@ -145,7 +133,6 @@ export function TenantHome() {
                 )}
               </div>
             </div>
-
             <div className="mt-12 flex flex-col sm:flex-row gap-6">
               <button
                 onClick={() => navigate("/tenant/bills?action=pay_outstanding")}
@@ -167,8 +154,7 @@ export function TenantHome() {
             </div>
           </div>
         </motion.div>
-
-        {/* Property Profile */}
+        { }
         <motion.div
           className="glass-card p-10 border-gold-500/10 luxury-shadow bg-gradient-to-br from-navy-900/60 to-navy-950/60"
           initial={{ opacity: 0, y: 20 }}
@@ -181,7 +167,6 @@ export function TenantHome() {
             </div>
             <h2 className="serif-heading text-2xl text-pearl-50 tracking-tight">Suite Address</h2>
           </div>
-
           {!isLoading && data?.property ? (
             <div className="space-y-8">
               <div className="space-y-2">
@@ -191,9 +176,7 @@ export function TenantHome() {
                   {data.property.address}, {data.property.locality}, {data.property.city}
                 </div>
               </div>
-
               <div className="luxury-divider" />
-
               <div className="grid grid-cols-2 gap-8">
                 <div>
                   <div className="text-[10px] font-bold text-gold-700 uppercase tracking-[0.2em] mb-2">Designation</div>
@@ -218,9 +201,7 @@ export function TenantHome() {
             </div>
           )}
         </motion.div>
-
-
-        {/* Security Deposit Card */}
+        { }
         <motion.div
           className="lg:col-span-3 glass-card p-10 border-gold-500/10 luxury-shadow flex flex-col md:flex-row items-center justify-between gap-8"
           initial={{ opacity: 0, y: 20 }}
@@ -240,7 +221,6 @@ export function TenantHome() {
               </p>
             </div>
           </div>
-
           {data?.depositInfo ? (
             <div className="flex items-center gap-6 bg-navy-900/50 p-6 rounded-2xl border border-gold-500/10">
               <div>
@@ -274,11 +254,10 @@ export function TenantHome() {
           )}
         </motion.div>
       </div>
-
-      {/* Quick Action Ornaments */}
+      { }
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {[
-          { label: "Concierge", desc: "Maintenance & Request", icon: Zap, to: "/tenant/concierge" },
+          { label: "Concierge", desc: "Coming Soon", icon: Zap, to: "/tenant/concierge", badge: "Coming Soon" },
           { label: "Vault", desc: "Private Documents", icon: ShieldCheck, to: "/tenant/vault" },
           { label: "Updates", desc: "Residence Notices", icon: Sparkles, to: "/tenant/notices" },
           { label: "Analytics", desc: "Payment History", icon: Clock, to: "/tenant/payment-history" }
@@ -299,7 +278,6 @@ export function TenantHome() {
           </motion.div>
         ))}
       </div>
-
     </div >
   );
-}
+}

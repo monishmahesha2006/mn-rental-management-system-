@@ -16,14 +16,12 @@ import {
   X,
   FileText
 } from "lucide-react";
-
 interface Occupant {
   id: string;
   name: string;
   age?: number | null;
   relation?: string | null;
 }
-
 interface TenantRow {
   tenantId: string;
   tenancyId: string | null;
@@ -38,7 +36,6 @@ interface TenantRow {
   isAssigned: boolean;
   occupants: Occupant[];
 }
-
 interface Property {
   id: string;
   name: string;
@@ -47,7 +44,6 @@ interface Property {
   locality: string;
   units: Unit[];
 }
-
 interface Unit {
   id: string;
   name: string;
@@ -55,7 +51,6 @@ interface Unit {
   deposit: number;
   status: string;
 }
-
 export function OwnerTenants() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -67,19 +62,14 @@ export function OwnerTenants() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
-
-  // Property form state
   const [propertyName, setPropertyName] = useState("");
   const [propertyAddress, setPropertyAddress] = useState("");
   const [propertyCity, setPropertyCity] = useState("Bangalore");
   const [propertyLocality, setPropertyLocality] = useState("");
-
-  // Unit form state
   const [unitPropertyId, setUnitPropertyId] = useState("");
   const [unitName, setUnitName] = useState("");
   const [unitRent, setUnitRent] = useState<number>(0);
   const [unitDeposit, setUnitDeposit] = useState<number>(0);
-
   const { data: tenantsData, isLoading: tenantsLoading } = useQuery<{ tenants: TenantRow[] }>({
     queryKey: ["owner-tenants"],
     queryFn: async () => {
@@ -87,7 +77,6 @@ export function OwnerTenants() {
       return res.data;
     }
   });
-
   const { data: propertiesData, isLoading: propertiesLoading } = useQuery<{ properties: Property[] }>({
     queryKey: ["owner-properties"],
     queryFn: async () => {
@@ -95,7 +84,6 @@ export function OwnerTenants() {
       return res.data;
     }
   });
-
   const createTenantMutation = useMutation({
     mutationFn: async (data: { email: string; password: string; name?: string }) => {
       const res = await axios.post("/api/owner/tenants/create", data);
@@ -113,7 +101,6 @@ export function OwnerTenants() {
       setError(err?.response?.data?.error?.message || "Failed to create resident account");
     }
   });
-
   const createPropertyMutation = useMutation({
     mutationFn: async (data: { name: string; address: string; city: string; locality: string }) => {
       const res = await axios.post("/api/owner/properties", data);
@@ -131,7 +118,6 @@ export function OwnerTenants() {
       setError(err?.response?.data?.error?.message || "Failed to create property");
     }
   });
-
   const assignTenantMutation = useMutation({
     mutationFn: async (data: { tenantId: string; unitId: string }) => {
       const res = await axios.post(`/api/owner/tenants/${data.tenantId}/assign`, {
@@ -149,7 +135,6 @@ export function OwnerTenants() {
       setError(err?.response?.data?.error?.message || "Failed to assign resident");
     }
   });
-
   const createUnitMutation = useMutation({
     mutationFn: async (data: { propertyId: string; name: string; rentAmount: number; deposit: number }) => {
       const res = await axios.post(`/api/owner/properties/${data.propertyId}/units`, {
@@ -172,7 +157,6 @@ export function OwnerTenants() {
       setError(err?.response?.data?.error?.message || "Failed to create unit");
     }
   });
-
   const handleCreateTenant = (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -182,7 +166,6 @@ export function OwnerTenants() {
     }
     createTenantMutation.mutate({ email, password, name: name || undefined });
   };
-
   const handleCreateProperty = (e: React.FormEvent) => {
     e.preventDefault();
     if (!propertyName || !propertyAddress || !propertyLocality) {
@@ -196,7 +179,6 @@ export function OwnerTenants() {
       locality: propertyLocality
     });
   };
-
   const handleCreateUnit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!unitPropertyId || !unitName || !unitRent || !unitDeposit) {
@@ -210,11 +192,9 @@ export function OwnerTenants() {
       deposit: unitDeposit
     });
   };
-
   const tenants = tenantsData?.tenants || [];
   const properties = propertiesData?.properties || [];
   const allUnits = properties.flatMap((p) => p.units.map((u) => ({ ...u, propertyName: p.name })));
-
   return (
     <div className="space-y-10 animate-fade-in-up pb-16">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
@@ -249,7 +229,6 @@ export function OwnerTenants() {
           </button>
         </div>
       </div>
-
       <AnimatePresence>
         {showUnitForm && (
           <motion.div
@@ -281,7 +260,6 @@ export function OwnerTenants() {
                     <ChevronDown className="absolute right-5 top-1/2 -translate-y-1/2 text-gold-700 pointer-events-none" size={16} />
                   </div>
                 </div>
-
                 <div className="grid md:grid-cols-3 gap-8">
                   <div className="space-y-3">
                     <label className="text-xs font-medium text-gold-400 uppercase tracking-[0.15em] px-1">Unit Name (e.g. 101)</label>
@@ -316,9 +294,7 @@ export function OwnerTenants() {
                     />
                   </div>
                 </div>
-
                 {error && <p className="text-sm font-medium text-red-400 italic">{error}</p>}
-
                 <button
                   type="submit"
                   disabled={createUnitMutation.isPending}
@@ -384,7 +360,6 @@ export function OwnerTenants() {
             </div>
           </motion.div>
         )}
-
         {showCreateForm && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
@@ -442,7 +417,6 @@ export function OwnerTenants() {
           </motion.div>
         )}
       </AnimatePresence>
-
       <motion.div
         className="glass-card overflow-hidden border-gold-500/10 luxury-shadow"
         initial={{ opacity: 0, y: 20 }}
@@ -560,8 +534,7 @@ export function OwnerTenants() {
           </table>
         </div>
       </motion.div>
-
-      {/* Assign Suite Modal */}
+      { }
       <AnimatePresence>
         {showAssignForm && (
           <motion.div
@@ -582,7 +555,6 @@ export function OwnerTenants() {
               >
                 <X size={24} />
               </button>
-
               <div className="h-24 w-24 rounded-[2rem] bg-gradient-to-br from-gold-500/20 to-gold-600/20 text-gold-500 border border-gold-500/30 flex items-center justify-center mx-auto mb-10 luxury-glow shadow-2xl">
                 <Link2 size={40} />
               </div>
@@ -639,4 +611,4 @@ export function OwnerTenants() {
       </AnimatePresence>
     </div>
   );
-}
+}

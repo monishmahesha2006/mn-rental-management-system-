@@ -16,7 +16,6 @@ import {
     Mail
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-
 interface Occupant {
     id: string;
     name: string;
@@ -26,7 +25,6 @@ interface Occupant {
     aadharId?: string | null;
     photoUrl?: string | null;
 }
-
 interface TenantProfileData {
     unitId: string | null;
     occupants: Occupant[];
@@ -34,26 +32,20 @@ interface TenantProfileData {
     phone: string | null;
     email: string;
 }
-
 export function TenantProfile() {
     const queryClient = useQueryClient();
     const [showAddForm, setShowAddForm] = useState(false);
     const [showProfileEdit, setShowProfileEdit] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
-
-    // Profile state
     const [userPhone, setUserPhone] = useState("");
     const [userName, setUserName] = useState("");
-
-    // Occupant form state
     const [name, setName] = useState("");
     const [age, setAge] = useState("");
     const [relation, setRelation] = useState("");
     const [phoneNumber, setPhoneNumber] = useState("");
     const [aadharId, setAadharId] = useState("");
     const [photoUrl, setPhotoUrl] = useState("");
-
     const { data: profileData, isLoading } = useQuery<TenantProfileData>({
         queryKey: ["tenant-profile"],
         queryFn: async () => {
@@ -64,7 +56,6 @@ export function TenantProfile() {
             return data;
         }
     });
-
     const updateProfileMutation = useMutation({
         mutationFn: async (data: { name: string; phone: string }) => {
             const res = await axios.patch("/api/tenant/profile", data);
@@ -80,7 +71,6 @@ export function TenantProfile() {
             setError(err?.response?.data?.error?.message || "Failed to update record.");
         }
     });
-
     const addOccupantMutation = useMutation({
         mutationFn: async (data: {
             name: string;
@@ -104,7 +94,6 @@ export function TenantProfile() {
             setError(err?.response?.data?.error?.message || "Failed to update registry.");
         }
     });
-
     const deleteOccupantMutation = useMutation({
         mutationFn: async (occupantId: string) => {
             const res = await axios.delete(`/api/tenant/occupants/${occupantId}`);
@@ -119,7 +108,6 @@ export function TenantProfile() {
             setError(err?.response?.data?.error?.message || "Failed to revoke registry.");
         }
     });
-
     const resetForm = () => {
         setName("");
         setAge("");
@@ -129,7 +117,6 @@ export function TenantProfile() {
         setPhotoUrl("");
         setError(null);
     };
-
     const handleAddOccupant = (e: React.FormEvent) => {
         e.preventDefault();
         setError(null);
@@ -146,12 +133,10 @@ export function TenantProfile() {
             photoUrl: photoUrl.trim() || undefined
         });
     };
-
     const handleUpdateProfile = (e: React.FormEvent) => {
         e.preventDefault();
         updateProfileMutation.mutate({ name: userName, phone: userPhone });
     };
-
     if (isLoading) {
         return (
             <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-6">
@@ -160,7 +145,6 @@ export function TenantProfile() {
             </div>
         );
     }
-
     return (
         <div className="space-y-10 animate-fade-in-up pb-16">
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
@@ -190,7 +174,6 @@ export function TenantProfile() {
                     </button>
                 </div>
             </div>
-
             <AnimatePresence>
                 {success && (
                     <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="glass-card p-6 border-emerald-800/20 bg-emerald-800/10 mb-8 flex items-center gap-3">
@@ -198,14 +181,12 @@ export function TenantProfile() {
                         <p className="text-xs font-bold text-emerald-800 uppercase tracking-widest">{success}</p>
                     </motion.div>
                 )}
-
                 {error && (
                     <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="glass-card p-6 border-red-500/20 bg-red-900/20 mb-8 flex items-center gap-3">
                         <X size={18} className="text-red-400" />
                         <p className="text-xs font-bold text-red-400 uppercase tracking-widest italic">{error}</p>
                     </motion.div>
                 )}
-
                 {showProfileEdit && (
                     <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden mb-12">
                         <div className="glass-card p-10 border-gold-500/20 luxury-shadow">
@@ -251,7 +232,6 @@ export function TenantProfile() {
                         </div>
                     </motion.div>
                 )}
-
                 {showAddForm && (
                     <motion.div
                         initial={{ opacity: 0, height: 0 }}
@@ -293,7 +273,6 @@ export function TenantProfile() {
                                         </div>
                                     </div>
                                 </div>
-
                                 <div className="grid md:grid-cols-2 gap-8">
                                     <div className="space-y-3">
                                         <label className="text-xs font-medium text-gold-400 uppercase tracking-[0.15em] px-1">Age</label>
@@ -316,7 +295,6 @@ export function TenantProfile() {
                                         />
                                     </div>
                                 </div>
-
                                 <div className="grid md:grid-cols-2 gap-8">
                                     <div className="space-y-3">
                                         <label className="text-xs font-medium text-gold-400 uppercase tracking-[0.15em] px-1">Aadhar ID (Security)</label>
@@ -339,7 +317,6 @@ export function TenantProfile() {
                                         />
                                     </div>
                                 </div>
-
                                 <button
                                     type="submit"
                                     disabled={addOccupantMutation.isPending}
@@ -352,7 +329,6 @@ export function TenantProfile() {
                     </motion.div>
                 )}
             </AnimatePresence>
-
             <div className="glass-card p-10 border-gold-500/10 luxury-shadow">
                 <div className="flex items-center justify-between mb-12">
                     <h2 className="serif-heading text-2xl text-pearl-50 tracking-tight flex items-center gap-3">
@@ -362,7 +338,6 @@ export function TenantProfile() {
                         </span>
                     </h2>
                 </div>
-
                 {!profileData?.occupants || profileData.occupants.length === 0 ? (
                     <div className="text-center py-24 border border-dashed border-gold-500/10 rounded-[3rem]">
                         <User size={64} strokeWidth={1} className="mx-auto text-gold-800 mb-6 opacity-30" />
@@ -390,7 +365,6 @@ export function TenantProfile() {
                                 >
                                     <Trash2 size={16} />
                                 </button>
-
                                 <div className="flex flex-col sm:flex-row items-center sm:items-start gap-8">
                                     <div className="relative group/avatar shrink-0">
                                         {occupant.photoUrl ? (
@@ -410,7 +384,6 @@ export function TenantProfile() {
                                             <Camera size={14} />
                                         </div>
                                     </div>
-
                                     <div className="flex-1 space-y-6 pt-2 text-center sm:text-left">
                                         <div>
                                             <div className="text-[10px] font-bold text-gold-500 uppercase tracking-[0.25em] mb-2 flex items-center justify-center sm:justify-start gap-2">
@@ -420,7 +393,6 @@ export function TenantProfile() {
                                                 {occupant.name}
                                             </h3>
                                         </div>
-
                                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4 pt-2 border-t border-gold-500/5">
                                             {occupant.age && (
                                                 <div className="space-y-1">
@@ -442,7 +414,6 @@ export function TenantProfile() {
                     </div>
                 )}
             </div>
-
             <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -461,4 +432,4 @@ export function TenantProfile() {
             </motion.div>
         </div>
     );
-}
+}

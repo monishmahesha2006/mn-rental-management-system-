@@ -3,7 +3,6 @@ import axios from "axios";
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Plus, Receipt, Calendar, Building2, Tag, ArrowUpRight } from "lucide-react";
-
 interface Expense {
     id: string;
     label: string;
@@ -14,7 +13,6 @@ interface Expense {
     propertyId: string;
     property: { name: string };
 }
-
 export function OwnerExpenses() {
     const queryClient = useQueryClient();
     const [showForm, setShowForm] = useState(false);
@@ -23,17 +21,14 @@ export function OwnerExpenses() {
     const [category, setCategory] = useState("MAINTENANCE");
     const [propertyId, setPropertyId] = useState("");
     const [description, setDescription] = useState("");
-
     const { data: propertiesData } = useQuery<{ properties: any[] }>({
         queryKey: ["owner-properties"],
         queryFn: async () => (await axios.get("/api/owner/properties")).data
     });
-
     const { data: expensesData, isLoading } = useQuery<{ expenses: Expense[] }>({
         queryKey: ["owner-expenses"],
         queryFn: async () => (await axios.get("/api/owner/expenses")).data
     });
-
     const createMutation = useMutation({
         mutationFn: async (vars: any) => await axios.post("/api/owner/expenses", vars),
         onSuccess: () => {
@@ -43,14 +38,11 @@ export function OwnerExpenses() {
             setAmount(0);
         }
     });
-
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         createMutation.mutate({ label, amount, category, propertyId, description });
     };
-
     const totalExpenses = expensesData?.expenses.reduce((sum, e) => sum + e.amount, 0) || 0;
-
     return (
         <div className="space-y-8 animate-fade-in-up">
             <div className="flex justify-between items-end">
@@ -66,14 +58,12 @@ export function OwnerExpenses() {
                     Log Expense
                 </button>
             </div>
-
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="glass-card p-8 border-gold-500/10">
                     <div className="text-[10px] font-bold text-gold-700 uppercase tracking-widest mb-2">Total Outflow</div>
                     <div className="serif-heading text-3xl text-pearl-50">₹{totalExpenses.toLocaleString()}</div>
                 </div>
             </div>
-
             {showForm && (
                 <motion.div
                     initial={{ opacity: 0, height: 0 }}
@@ -140,7 +130,6 @@ export function OwnerExpenses() {
                     </form>
                 </motion.div>
             )}
-
             <div className="glass-card overflow-hidden">
                 <table className="w-full text-left">
                     <thead className="bg-navy-900/50 text-gold-400 text-[10px] uppercase tracking-widest border-b border-gold-500/10">
@@ -178,4 +167,4 @@ export function OwnerExpenses() {
             </div>
         </div>
     );
-}
+}

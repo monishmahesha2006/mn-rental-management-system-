@@ -1,0 +1,26 @@
+# Dependencies (for any newly added packages)
+node_modules/
+client/node_modules/
+server/node_modules/
+
+# Environment variables
+.env
+.env.local
+server/.env
+server/.env.production
+
+# Logs
+*.log
+npm-debug.log*
+
+# Database backups & temporary files
+*.backup
+*.db-journal
+server/prisma/*.backup
+
+# Operating System files
+.DS_Store
+Thumbs.db
+
+# Build outputs that can be rebuilt (optional, keeping client/dist if wanted)
+server/dist/

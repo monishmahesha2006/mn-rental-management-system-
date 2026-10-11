@@ -3,20 +3,16 @@ import axios from "axios";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Zap, Send, FileText, CheckCircle2, AlertCircle, Clock, Sparkles } from "lucide-react";
-
 export function OwnerAutomation() {
     const [message, setMessage] = useState<string | null>(null);
-
     const inviteMutation = useMutation({
         mutationFn: async () => (await axios.post("/api/owner/automation/generate-monthly-invoices")).data,
         onSuccess: (data) => setMessage(data.message)
     });
-
     const reminderMutation = useMutation({
         mutationFn: async () => (await axios.post("/api/owner/automation/send-reminders")).data,
         onSuccess: (data) => setMessage(data.message)
     });
-
     return (
         <div className="max-w-4xl mx-auto space-y-12 animate-fade-in-up">
             <div className="text-center space-y-4">
@@ -28,9 +24,8 @@ export function OwnerAutomation() {
                     Automate the heavy lifting. One-click billing and intelligent tenant reminders.
                 </p>
             </div>
-
             <div className="grid md:grid-cols-2 gap-8">
-                {/* Auto Invoice Generation */}
+                { }
                 <motion.div
                     whileHover={{ y: -5 }}
                     className="glass-card p-10 border-gold-500/10 relative overflow-hidden group"
@@ -53,8 +48,7 @@ export function OwnerAutomation() {
                         </button>
                     </div>
                 </motion.div>
-
-                {/* Smart Reminders */}
+                { }
                 <motion.div
                     whileHover={{ y: -5 }}
                     className="glass-card p-10 border-gold-500/10 relative overflow-hidden group"
@@ -78,7 +72,6 @@ export function OwnerAutomation() {
                     </div>
                 </motion.div>
             </div>
-
             <AnimatePresence>
                 {message && (
                     <motion.div
@@ -95,4 +88,4 @@ export function OwnerAutomation() {
             </AnimatePresence>
         </div>
     );
-}
+}

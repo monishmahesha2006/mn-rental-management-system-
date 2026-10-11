@@ -22,14 +22,12 @@ import {
 } from "lucide-react";
 import { format, isValid } from "date-fns";
 import { useSearchParams } from "react-router-dom";
-
 interface InvoiceItem {
   id: string;
   label: string;
   amount: number;
   category: "RENT" | "WATER" | "ELECTRICITY" | "OTHER";
 }
-
 interface Invoice {
   id: string;
   dueDate: string;
@@ -39,18 +37,15 @@ interface Invoice {
   paymentMethod?: string | null;
   cashApprovalPending?: boolean;
 }
-
 declare global {
   interface Window {
     Razorpay: any;
   }
 }
-
 export function TenantBills() {
   const queryClient = useQueryClient();
   const [searchParams, setSearchParams] = useSearchParams();
   const hasAutoOpened = useRef(false);
-
   const { data, isLoading, error } = useQuery<{ invoices: Invoice[] }>({
     queryKey: ["tenant-bills"],
     queryFn: async () => {
@@ -58,14 +53,10 @@ export function TenantBills() {
       return res.data;
     }
   });
-
   const [downloading, setDownloading] = useState<string | null>(null);
   const [paymentModal, setPaymentModal] = useState<{ invoiceId: string; amount: number } | null>(null);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
-
   const invoices = useMemo(() => data?.invoices ?? [], [data]);
-
-  // Safe Date Formatter
   const safeFormatDate = (dateStr: any) => {
     try {
       if (!dateStr) return "TBD";
@@ -76,29 +67,22 @@ export function TenantBills() {
       return "N/A";
     }
   };
-
-  // Auto-open payment modal logic - hardened
   useEffect(() => {
     if (isLoading || hasAutoOpened.current || !data?.invoices) return;
-
     const action = searchParams.get("action");
     if (action === "pay_outstanding") {
       const pendingInvoice = data.invoices.find(
         (inv) => (inv.status === "PENDING" || inv.status === "OVERDUE") && !inv.cashApprovalPending
       );
-
       if (pendingInvoice) {
         setPaymentModal({ invoiceId: pendingInvoice.id, amount: pendingInvoice.totalAmount });
         hasAutoOpened.current = true;
-
-        // Clean up URL params safely
         const nextParams = new URLSearchParams(searchParams);
         nextParams.delete("action");
         setSearchParams(nextParams, { replace: true });
       }
     }
   }, [data, isLoading, searchParams, setSearchParams]);
-
   const handleDownload = async (invoiceId: string) => {
     try {
       setDownloading(invoiceId);
@@ -118,7 +102,6 @@ export function TenantBills() {
       setDownloading(null);
     }
   };
-
   const cashPaymentMutation = useMutation({
     mutationFn: async (invoiceId: string) => {
       const res = await axios.post(`/api/tenant/bills/${invoiceId}/pay-cash`);
@@ -133,7 +116,6 @@ export function TenantBills() {
       setMessage({ type: 'error', text: err?.response?.data?.error?.message || 'Verification failed' });
     }
   });
-
   const onlinePaymentMutation = useMutation({
     mutationFn: async (invoiceId: string) => {
       const res = await axios.post(`/api/tenant/bills/${invoiceId}/create-order`);
@@ -158,7 +140,6 @@ export function TenantBills() {
         }, 1500);
         return;
       }
-
       if (!window.Razorpay) {
         const script = document.createElement('script');
         script.src = 'https://checkout.razorpay.com/v1/checkout.js';
@@ -173,7 +154,6 @@ export function TenantBills() {
       setMessage({ type: 'error', text: err?.response?.data?.error?.message || 'Online gateway unavailable' });
     }
   });
-
   const initiateRazorpayPayment = (orderData: any) => {
     const options = {
       key: orderData.keyId,
@@ -206,13 +186,11 @@ export function TenantBills() {
     const rzp = new window.Razorpay(options);
     rzp.open();
   };
-
   const sections: { key: string; label: string; icon: any; filter: (item: InvoiceItem) => boolean }[] = [
     { key: "RENT", label: "Suite Investment (Rent)", icon: Building2, filter: (i) => i.category === "RENT" },
     { key: "WATER", label: "Utility - Water", icon: Droplets, filter: (i) => i.category === "WATER" },
     { key: "ELECTRICITY", label: "Utility - Power", icon: Zap, filter: (i) => i.category === "ELECTRICITY" }
   ];
-
   if (error) {
     return (
       <div className="py-20 text-center text-pearl-50">
@@ -222,10 +200,9 @@ export function TenantBills() {
       </div>
     );
   }
-
   return (
     <div className="space-y-10 animate-fade-in-up pb-16">
-      <div className="flex justify-between items-end">
+      <div className="flex flex-col md:flex-row justify-between md:items-end gap-4">
         <div>
           <h1 className="serif-heading text-5xl text-pearl-50 mb-3 flex items-center gap-3">
             Financial Ledger
@@ -233,8 +210,13 @@ export function TenantBills() {
           </h1>
           <p className="text-gold-700 font-light tracking-wide italic">Elite breakdown of your residency investments.</p>
         </div>
+        <div className="flex items-center gap-3">
+          <div className="px-4 py-2.5 bg-amber-50 border border-amber-200/80 rounded-xl flex items-center gap-2.5 text-xs text-amber-800 font-medium shadow-sm">
+            <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+            Online Payment: <span className="font-bold">Coming Soon</span>
+          </div>
+        </div>
       </div>
-
       <AnimatePresence>
         {message && (
           <motion.div
@@ -251,7 +233,6 @@ export function TenantBills() {
           </motion.div>
         )}
       </AnimatePresence>
-
       <div className="grid gap-8">
         {sections.map((sec) => (
           <div key={sec.key} className="glass-card overflow-hidden border-gold-500/10 luxury-shadow">
@@ -263,7 +244,6 @@ export function TenantBills() {
                 <h2 className="serif-heading text-2xl text-pearl-50 tracking-tight">{sec.label}</h2>
               </div>
             </div>
-
             <div className="p-8">
               {isLoading ? (
                 <div className="py-12 text-center">
@@ -290,7 +270,6 @@ export function TenantBills() {
                             <div className="flex items-center gap-2"><Clock size={14} /> Due: {safeFormatDate(inv.dueDate)}</div>
                           </div>
                         </div>
-
                         <div className="flex items-center gap-8 w-full md:w-auto">
                           <div className="text-right flex-1 md:flex-none">
                             <div className="text-[10px] text-gold-800 uppercase font-bold mb-1">Amount</div>
@@ -316,7 +295,6 @@ export function TenantBills() {
           </div>
         ))}
       </div>
-
       <AnimatePresence>
         {paymentModal && (
           <motion.div
@@ -334,11 +312,37 @@ export function TenantBills() {
               className="glass-card max-w-md w-full p-10 border-gold-500/20 text-center"
             >
               <h3 className="serif-heading text-3xl text-pearl-50 mb-2">Clear Dues</h3>
-              <p className="text-gold-700 text-sm mb-8">Amount: ₹{paymentModal.amount.toLocaleString("en-IN")}</p>
+              <p className="text-gold-700 text-sm mb-6">Amount: ₹{paymentModal.amount.toLocaleString("en-IN")}</p>
               <div className="grid gap-4">
-                <button onClick={() => onlinePaymentMutation.mutate(paymentModal.invoiceId)} className="luxury-button w-full" disabled={onlinePaymentMutation.isPending}>Online Payment</button>
-                <button onClick={() => cashPaymentMutation.mutate(paymentModal.invoiceId)} className="luxury-button-outline w-full" disabled={cashPaymentMutation.isPending}>Physical Cash</button>
-                <button onClick={() => setPaymentModal(null)} className="text-[10px] font-bold text-gold-900 uppercase tracking-widest mt-4">Cancel</button>
+                {/* Online Payment Coming Soon Box */}
+                <div className="p-4 rounded-2xl border border-linen bg-white/80 text-left shadow-sm">
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className="font-semibold text-slate-900 text-sm flex items-center gap-2">
+                      <CreditCard size={16} className="text-indigo-600" />
+                      Online Payment (UPI / Cards)
+                    </span>
+                    <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-200 uppercase tracking-wider">
+                      Coming Soon
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-500 leading-relaxed">
+                    Razorpay instant checkout is currently under activation. Please use direct settlement below.
+                  </p>
+                </div>
+
+                <button
+                  onClick={() => cashPaymentMutation.mutate(paymentModal.invoiceId)}
+                  className="luxury-button w-full py-4 text-xs font-bold"
+                  disabled={cashPaymentMutation.isPending}
+                >
+                  {cashPaymentMutation.isPending ? "Recording Request..." : "Pay via Physical Cash / Direct Settlement"}
+                </button>
+                <button
+                  onClick={() => setPaymentModal(null)}
+                  className="text-xs font-semibold text-slate-500 hover:text-slate-800 uppercase tracking-wider mt-2 transition-colors"
+                >
+                  Cancel
+                </button>
               </div>
             </motion.div>
           </motion.div>
@@ -346,4 +350,4 @@ export function TenantBills() {
       </AnimatePresence>
     </div>
   );
-}
+}

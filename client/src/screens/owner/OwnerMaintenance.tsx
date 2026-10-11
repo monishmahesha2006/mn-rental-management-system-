@@ -17,7 +17,6 @@ import {
 } from "lucide-react";
 import { format } from "date-fns";
 import { motion, AnimatePresence } from "framer-motion";
-
 interface MaintenanceTicket {
   id: string;
   title: string;
@@ -40,10 +39,8 @@ interface MaintenanceTicket {
     };
   } | null;
 }
-
 export function OwnerMaintenance() {
   const queryClient = useQueryClient();
-
   const { data, isLoading } = useQuery<{ tickets: MaintenanceTicket[] }>({
     queryKey: ["owner-maintenance-tickets"],
     queryFn: async () => {
@@ -51,7 +48,6 @@ export function OwnerMaintenance() {
       return res.data;
     }
   });
-
   const updateStatusMutation = useMutation({
     mutationFn: async ({ ticketId, status }: { ticketId: string; status: string }) => {
       const res = await axios.patch(`/api/owner/maintenance-tickets/${ticketId}`, { status });
@@ -61,9 +57,7 @@ export function OwnerMaintenance() {
       queryClient.invalidateQueries({ queryKey: ["owner-maintenance-tickets"] });
     }
   });
-
   const tickets = data?.tickets || [];
-
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "OPEN": return "border-red-500/30 text-red-400 bg-red-900/20";
@@ -72,7 +66,6 @@ export function OwnerMaintenance() {
       default: return "border-gold-700/30 text-gold-700 bg-navy-800/50";
     }
   };
-
   const getStatusIconColor = (status: string) => {
     switch (status) {
       case "OPEN": return "text-red-400";
@@ -81,7 +74,6 @@ export function OwnerMaintenance() {
       default: return "text-gold-700";
     }
   };
-
   return (
     <div className="space-y-10 animate-fade-in-up pb-16">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
@@ -105,7 +97,6 @@ export function OwnerMaintenance() {
           </button>
         </div>
       </div>
-
       <div className="glass-card overflow-hidden border-gold-500/10 luxury-shadow">
         <div className="p-8 border-b border-gold-500/10 flex items-center justify-between bg-navy-900/40">
           <div className="flex items-center gap-3">
@@ -116,14 +107,12 @@ export function OwnerMaintenance() {
             Total {tickets.length} Tickets
           </div>
         </div>
-
         {isLoading && (
           <div className="py-32 text-center">
             <div className="h-14 w-14 border-2 border-gold-500 border-t-transparent rounded-full animate-spin mx-auto mb-6 luxury-glow" />
             <p className="text-sm font-light text-gold-700 tracking-widest uppercase">Indexing Portfolio Service Desk...</p>
           </div>
         )}
-
         {!isLoading && tickets.length === 0 && (
           <div className="py-32 text-center">
             <MessageSquare size={64} className="mx-auto text-gold-800 mb-6 opacity-30" />
@@ -131,7 +120,6 @@ export function OwnerMaintenance() {
             <p className="text-xs font-bold text-gold-800 uppercase tracking-widest mt-2 italic">Everything is running in pristine condition.</p>
           </div>
         )}
-
         {!isLoading && tickets.length > 0 && (
           <div className="divide-y divide-gold-500/10">
             {tickets.map((ticket, idx) => (
@@ -159,7 +147,6 @@ export function OwnerMaintenance() {
                         <p className="text-gold-700 text-base font-light leading-relaxed max-w-3xl">{ticket.description}</p>
                       </div>
                     </div>
-
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 pl-0 lg:pl-16">
                       <div className="space-y-2">
                         <div className="text-[10px] font-bold text-gold-700 uppercase tracking-widest flex items-center gap-2">
@@ -191,7 +178,6 @@ export function OwnerMaintenance() {
                       </div>
                     </div>
                   </div>
-
                   <div className="flex flex-col gap-4 min-w-[200px] xl:items-end">
                     <label className="text-[10px] font-bold text-gold-700 uppercase tracking-[0.2em] px-1">Update Status</label>
                     <div className="relative group/select w-full">
@@ -218,4 +204,4 @@ export function OwnerMaintenance() {
       </div>
     </div>
   );
-}
+}

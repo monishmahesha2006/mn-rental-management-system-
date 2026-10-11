@@ -4,7 +4,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Banknote, CheckCircle2, XCircle, Clock, User, Building2, AlertCircle } from "lucide-react";
 import { format } from "date-fns";
 import { useState } from "react";
-
 interface PendingPayment {
     invoiceId: string;
     amount: number;
@@ -15,11 +14,9 @@ interface PendingPayment {
     unitName: string;
     paymentRef: string;
 }
-
 export function OwnerCashApprovals() {
     const queryClient = useQueryClient();
     const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
-
     const { data, isLoading } = useQuery<{ pendingPayments: PendingPayment[] }>({
         queryKey: ["pending-cash-payments"],
         queryFn: async () => {
@@ -27,7 +24,6 @@ export function OwnerCashApprovals() {
             return res.data;
         }
     });
-
     const approveMutation = useMutation({
         mutationFn: async (invoiceId: string) => {
             const res = await axios.post(`/api/owner/invoices/${invoiceId}/approve-cash`);
@@ -42,7 +38,6 @@ export function OwnerCashApprovals() {
             setMessage({ type: 'error', text: err?.response?.data?.error?.message || 'Failed to approve payment' });
         }
     });
-
     const rejectMutation = useMutation({
         mutationFn: async (invoiceId: string) => {
             const res = await axios.post(`/api/owner/invoices/${invoiceId}/reject-cash`);
@@ -57,9 +52,7 @@ export function OwnerCashApprovals() {
             setMessage({ type: 'error', text: err?.response?.data?.error?.message || 'Failed to reject payment' });
         }
     });
-
     const pendingPayments = data?.pendingPayments ?? [];
-
     return (
         <div className="max-w-6xl mx-auto space-y-10 animate-fade-in-up">
             <div className="text-center space-y-4">
@@ -71,8 +64,7 @@ export function OwnerCashApprovals() {
                     Review and approve cash payments submitted by your tenants.
                 </p>
             </div>
-
-            {/* Success/Error Messages */}
+            { }
             <AnimatePresence>
                 {message && (
                     <motion.div
@@ -90,7 +82,6 @@ export function OwnerCashApprovals() {
                     </motion.div>
                 )}
             </AnimatePresence>
-
             {isLoading ? (
                 <div className="py-24 text-center">
                     <div className="h-16 w-16 border-2 border-gold-500 border-t-transparent rounded-full animate-spin mx-auto mb-6 opacity-30" />
@@ -132,7 +123,6 @@ export function OwnerCashApprovals() {
                                             </p>
                                         </div>
                                     </div>
-
                                     <div className="grid md:grid-cols-2 gap-6">
                                         <div className="space-y-3">
                                             <div className="flex items-center gap-3">
@@ -146,7 +136,6 @@ export function OwnerCashApprovals() {
                                                 </div>
                                             </div>
                                         </div>
-
                                         <div className="space-y-3">
                                             <div className="flex items-center gap-3">
                                                 <div className="h-10 w-10 rounded-xl bg-gold-500/10 border border-gold-500/20 flex items-center justify-center">
@@ -160,7 +149,6 @@ export function OwnerCashApprovals() {
                                             </div>
                                         </div>
                                     </div>
-
                                     <div className="flex items-center gap-6 text-xs text-gold-700">
                                         <div>
                                             <span className="font-bold uppercase tracking-widest">Due Date:</span>{" "}
@@ -173,7 +161,6 @@ export function OwnerCashApprovals() {
                                         </div>
                                     </div>
                                 </div>
-
                                 <div className="flex lg:flex-col gap-4 lg:w-48">
                                     <button
                                         onClick={() => approveMutation.mutate(payment.invoiceId)}
@@ -189,7 +176,6 @@ export function OwnerCashApprovals() {
                                             </>
                                         )}
                                     </button>
-
                                     <button
                                         onClick={() => rejectMutation.mutate(payment.invoiceId)}
                                         disabled={approveMutation.isPending || rejectMutation.isPending}
@@ -210,7 +196,6 @@ export function OwnerCashApprovals() {
                     ))}
                 </div>
             )}
-
             <div className="glass-card p-8 border-gold-500/10 bg-navy-900/40">
                 <div className="flex items-start gap-4">
                     <AlertCircle size={20} className="text-gold-500 flex-shrink-0 mt-0.5" />
@@ -226,4 +211,4 @@ export function OwnerCashApprovals() {
             </div>
         </div>
     );
-}
+}

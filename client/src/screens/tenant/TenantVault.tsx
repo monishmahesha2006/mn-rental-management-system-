@@ -3,7 +3,6 @@ import axios from "axios";
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { ShieldCheck, Upload, FileText, CheckCircle, ExternalLink, Lock } from "lucide-react";
-
 interface Doc {
   id: string;
   name: string;
@@ -11,17 +10,14 @@ interface Doc {
   url: string;
   createdAt: string;
 }
-
 export function TenantVault() {
   const queryClient = useQueryClient();
   const [docType, setDocType] = useState("ID_PROOF");
   const [docName, setDocName] = useState("");
-
   const { data: docsData, isLoading } = useQuery<{ documents: Doc[] }>({
     queryKey: ["tenant-documents"],
     queryFn: async () => (await axios.get("/api/tenant/documents")).data
   });
-
   const uploadMutation = useMutation({
     mutationFn: async (vars: any) => await axios.post("/api/tenant/documents/upload", vars),
     onSuccess: () => {
@@ -29,13 +25,11 @@ export function TenantVault() {
       setDocName("");
     }
   });
-
   const handleMockUpload = (e: React.FormEvent) => {
     e.preventDefault();
     if (!docName) return;
     uploadMutation.mutate({ name: docName, type: docType });
   };
-
   return (
     <div className="space-y-10 animate-fade-in-up">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
@@ -50,7 +44,6 @@ export function TenantVault() {
           </p>
         </div>
       </div>
-
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
         <div className="lg:col-span-1 space-y-8">
           <div className="glass-card p-8 border-gold-500/20 bg-gold-500/5">
@@ -82,7 +75,6 @@ export function TenantVault() {
               </button>
             </form>
           </div>
-
           <div className="glass-card p-8 border-emerald-800/20 bg-emerald-800/5">
             <div className="flex items-center gap-4 text-emerald-400 mb-4">
               <ShieldCheck size={32} />
@@ -93,7 +85,6 @@ export function TenantVault() {
             </p>
           </div>
         </div>
-
         <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6 content-start">
           {docsData?.documents.map((doc) => (
             <motion.div
@@ -117,7 +108,6 @@ export function TenantVault() {
               </a>
             </motion.div>
           ))}
-
           {docsData?.documents.length === 0 && (
             <div className="md:col-span-2 py-20 text-center border-2 border-dashed border-gold-500/10 rounded-3xl">
               <FileText className="mx-auto text-gold-700/20 mb-4" size={48} />
@@ -128,4 +118,4 @@ export function TenantVault() {
       </div>
     </div>
   );
-}
+}
