@@ -16,6 +16,7 @@ npm-debug.log*
 # Database backups & temporary files
 *.backup
 *.db-journal
+*.before_mahesha_wipe
 server/prisma/*.backup
 
 # Operating System files
