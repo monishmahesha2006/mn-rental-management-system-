@@ -1,76 +1,79 @@
-# BLR Rental Command Center & Resident Hub
+# mn-rental-management-system-
 
-Full-stack rental management system for the Greater Bangalore market, built with:
+> Premium Bangalore Rental & Property Management System (Resident Hub & Owner Command Center)
 
-- React + Vite + Tailwind CSS + Framer Motion + React Query
-- Node.js + Express + TypeScript
-- PostgreSQL with Prisma ORM
+A full-stack, enterprise-grade rental and property management platform built for landlords and tenants in the Greater Bangalore market.
 
-## Getting started
+---
 
-### Prerequisites
+## 🌟 Key Features
 
-- Node.js 18+
-- PostgreSQL running locally (or a cloud instance)
+- **Owner Command Center**: Comprehensive property, unit, tenant, lease, and expense management.
+- **Tenant Resident Portal**: Digital rent payment, payment history, maintenance requests, and notice board.
+- **Classic Iconic Light Theme**: Tailored warm luxury aesthetics with professional typography and intuitive UX.
+- **Automated Billing & Reminders**: Rental invoices, utility breakdown, and WhatsApp/SMS alert integration.
+- **Production-Ready Single-Server Deployment**: Node.js/Express server serves both the high-performance React SPA bundle and API endpoints on a single port.
 
-### 1. Configure the database & backend
+---
 
-1. Create a PostgreSQL database, e.g. `blr_rental`.
-2. Copy `server/.env.example` to `server/.env` and set:
+## 🛠️ Tech Stack
 
+- **Frontend**: React 18, Vite, Tailwind CSS, Lucide Icons, Chart.js, Axios
+- **Backend**: Node.js, Express, TypeScript, Prisma ORM, Helmet security
+- **Database**: SQLite (local/default) or PostgreSQL (hosted cloud database)
+- **Authentication**: JWT authentication with bcrypt password hashing
+
+---
+
+## 🚀 Quick Start
+
+### 1. Installation
+Install all dependencies for both frontend and backend in one command:
 ```bash
-DATABASE_URL="postgres://user:password@localhost:5432/blr_rental"
-JWT_SECRET="change-me"
+npm run install:all
 ```
 
-3. Install dependencies and run Prisma migrations:
-
+### 2. Development Mode
+Run both servers locally:
 ```bash
-cd server
-npm install
-npx prisma migrate dev --name init
+# Terminal 1 - Backend (Port 4000)
+npm run dev:server
+
+# Terminal 2 - Frontend (Port 5173)
+npm run dev:client
 ```
+*(Or double-click `start-dev.bat` on Windows)*
 
-4. (Optional) Seed initial demo data with a script you can add later that creates `owner@example.com` and `tenant@example.com`.
-
-5. Start the backend:
-
+### 3. Production Mode (Single-Server)
+Build and launch unified production mode:
 ```bash
-npm run dev
+npm run build
+npm start
 ```
+Access the application at `http://localhost:4000`.
+*(Or double-click `start-prod.bat` on Windows)*
 
-This starts the API on `http://localhost:4000`.
+---
 
-### 2. Start the frontend
+## 🗄️ Database Management
 
-1. In another terminal:
+- **Format & Clean Mock Data**:
+  ```bash
+  npm run format-db
+  ```
+- **Prisma Migrations**:
+  ```bash
+  npm run prisma:migrate
+  ```
 
-```bash
-cd client
-npm install
-npm run dev
-```
+---
 
-2. Open the printed Vite URL (typically `http://localhost:5173`).
+## 📖 Deployment Guide
 
-### 3. Auth & roles
+See [DEPLOYMENT.md](DEPLOYMENT.md) for full instructions on deploying to **Render**, **Railway**, or **Ubuntu/VPS**.
 
-- Use the `/api/auth/register` endpoint to create `OWNER` and `TENANT` users.
-- Log in from the `/login` screen:
-  - Owners are redirected to `/owner/dashboard`.
-  - Tenants are redirected to `/tenant/home`.
+---
 
-## Deployment notes
+## 📄 License
 
-- Backend:
-  - Set `DATABASE_URL`, `JWT_SECRET` and `PORT` in your cloud platform (Railway, Render, etc.).
-  - Build with `npm run build` and start with `npm start`.
-- Frontend:
-  - Deploy the `client` folder (Vercel/Netlify).
-  - Point `VITE_API_BASE_URL` (if you add it) at the deployed backend.
-
-## Payments & PDFs
-
-- Payment flows are mocked through `/api/payments/*` so you can later drop in real Razorpay/Stripe keys without changing the UI.
-- Invoice and agreement PDFs are currently returned as JSON/URLs; you can integrate a real PDF generator (e.g. `pdfkit`) and object storage (S3/GCS) as a next step.
-
+This project is licensed under the [MIT License](LICENSE).
